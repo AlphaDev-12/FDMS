@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIMRA FDMS Fiscal Bridge Console</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Dashboard CSS -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="dark-theme">
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-logo" id="brand-logo-container">
+                    <i class="fa-solid fa-shield-halved" id="brand-logo-icon"></i>
+                    <img id="brand-logo-img" src="" alt="Logo" class="brand-logo-img hidden" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                </div>
+                <div class="brand-text">
+                    <h2 id="brand-company-name">FDMS Enterprise</h2>
+                    <span id="brand-subtitle" style="font-size: 10px; opacity: 0.85; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">FDMS Bridge</span>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-link active" data-tab="overview">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-link" data-tab="fiscal-day">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span>Administration</span>
+                </button>
+                <button class="nav-link" data-tab="offline-queue">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Offline Queue</span>
+                    <span class="badge badge-queue" id="nav-queue-badge">0</span>
+                </button>
+                <button class="nav-link" data-tab="invoices">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span>Fiscal Invoices</span>
+                </button>
+                <button class="nav-link" data-tab="reports">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>Reports</span>
+                </button>
+                <button class="nav-link" data-tab="test-facility">
+                    <i class="fa-solid fa-flask-vial"></i>
+                    <span>Invoice Console</span>
+                </button>
+                <button class="nav-link" data-tab="subscription">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Subscriptions</span>
+                    <span class="badge badge-success" id="nav-sub-badge">Active</span>
+                </button>
+                <button class="nav-link" data-tab="audit-logs">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>System Audit</span>
+                </button>
+                <button class="nav-link" data-tab="users">
+                    <i class="fa-solid fa-users"></i>
+                    <span>Users</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="device-mini-card">
+                    <div class="device-mini-status pulse-dot" id="mini-status-dot"></div>
+                    <div class="device-mini-info">
+                        <span class="device-mini-title" id="mini-client-name" style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; display: block;" title="Client Name">Client: Config pending</span>
+                        <span class="device-mini-sub" id="mini-tin">TIN: Config pending</span>
+                    </div>
+                </div>
+
+                <!-- Admin Authenticated Badge & Lock Button -->
+                <div class="sidebar-auth-box" style="display: flex; flex-direction: column; gap: 6px; background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                    <div id="auth-status-badge" class="badge badge-success hidden" style="font-size: 11px; justify-content: center; width: 100%; padding: 5px 8px;">
+                        <i class="fa-solid fa-user-shield"></i> Admin Authenticated
+                    </div>
+                    <button id="btn-lock-dashboard" class="btn btn-sm btn-outline btn-block" title="Lock Dashboard / Logout" style="padding: 6px 12px; font-size: 12px; justify-content: center;">
+                        <i class="fa-solid fa-lock"></i> <span id="btn-lock-text">Lock</span>
+                    </button>
+                    <div id="sidebar-gateway-footer-text" style="text-align: center; font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(255, 255, 255, 0.08); text-transform: uppercase; letter-spacing: 0.5px;">
+                        ZIMRA v7.2 Gateway
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 id="page-title">Overview</h1>
+                    <span class="header-subtitle">Real-time ZIMRA Fiscal Device Management System Bridge</span>
+                </div>
+
+                <div class="header-right">
+                    <!-- ZIMRA Health Badge -->
+                    <div class="health-indicator" id="zimra-health-badge">
+                        <span class="pulse-ring"></span>
+                        <i class="fa-solid fa-server"></i>
+                        <span class="health-text" id="zimra-health-text">Checking ZIMRA...</span>
+                        <span class="latency-text" id="zimra-latency-text">-- ms</span>
+                    </div>
+
+                    <!-- Operating Mode Badge -->
+                    <div class="mode-status-badge mode-online" id="mode-status-badge">
+                        <i class="fa-solid fa-wifi"></i>
+                        <span id="mode-status-text">ONLINE MODE</span>
+                    </div>
+
+                    <!-- Fiscal Day Status Badge -->
+                    <div class="day-status-badge" id="fiscal-day-badge">
+                        <i class="fa-solid fa-clock"></i>
+                        <span id="fiscal-day-text">Open</span>
+                    </div>
+
+                    <!-- Auto Refresh Selector -->
+                    <div class="refresh-controls">
+                        <select id="auto-refresh-select" title="Auto Refresh Rate">
+                            <option value="5000">Refresh: 5s</option>
+                            <option value="10000" selected>Refresh: 10s</option>
+                            <option value="30000">Refresh: 30s</option>
+                            <option value="0">Refresh: Off</option>
+                        </select>
+                        <button id="btn-manual-refresh" class="btn btn-icon" title="Refresh Now">
+                            <i class="fa-solid fa-rotate-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Global Subscription Grace Period / Expiry Banner -->
+            <div id="global-sub-warning-banner" class="global-banner banner-warning hidden" style="margin: 15px 30px 0 30px; display: flex; align-items: center; padding: 12px 20px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #FCD34D;">
+                <div class="banner-content" style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-triangle-exclamation fa-lg" id="global-sub-banner-icon"></i>
+                    <span id="global-sub-warning-text" style="font-size: 13px; font-weight: 500;">Subscription Notice</span>
+                </div>
+                <button class="btn btn-sm btn-outline" data-tab-jump="subscription" style="margin-left: auto; font-size: 11px; padding: 4px 12px;">
+                    <i class="fa-solid fa-key"></i> Manage Subscription
+                </button>
+            </div>
+
+            <!-- TAB 1: OVERVIEW -->
+            <section class="tab-pane active" id="tab-overview">
+                <!-- KPI Grid -->
+                <div class="kpi-grid">
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon icon-usd">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Today Sales (USD)</span>
+                            <h3 class="kpi-value" id="kpi-sales-usd">$0.00</h3>
+                            <span class="kpi-subtext"><i class="fa-solid fa-arrow-trend-up"></i> Fiscalized Today</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon icon-zig">
+                            <i class="fa-solid fa-coins"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Today Sales (ZWG/ZIG)</span>
+                            <h3 class="kpi-value" id="kpi-sales-zig">ZiG 0.00</h3>
+                            <span class="kpi-subtext"><i class="fa-solid fa-arrow-trend-up"></i> Fiscalized Today</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon icon-fiscalized">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Fiscalized Documents</span>
+                            <h3 class="kpi-value" id="kpi-total-fiscalized">0</h3>
+                            <span class="kpi-subtext" id="kpi-fiscalized-sub">0 submitted today</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon icon-queue">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Offline Queue Depth</span>
+                            <h3 class="kpi-value" id="kpi-queue-depth">0</h3>
+                            <span class="kpi-subtext" id="kpi-queue-sub">0 items processing</span>
+                        </div>
+                    </div>
+
+                    <div class="kpi-card glass">
+                        <div class="kpi-icon icon-devices" style="background: rgba(16, 185, 129, 0.15); color: #34D399;">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div class="kpi-data">
+                            <span class="kpi-label">Registered Devices</span>
+                            <h3 class="kpi-value" id="kpi-registered-devices">0</h3>
+                            <span class="kpi-subtext" id="kpi-devices-sub">0 Day Open | 0 Day Closed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Action Ribbon -->
+                <div class="action-ribbon glass">
+                    <div class="ribbon-title">
+                        <i class="fa-solid fa-bolt"></i> Quick Controls
+                    </div>
+                    <div class="ribbon-buttons">
+                        <select id="select-target-env" class="env-dropdown-select" title="Select Target Environment">
+                            <option value="Live">ZIMRA Live</option>
+                            <option value="Sandbox" selected>ZIMRA Sandbox</option>
+                            <option value="Simulated">Local Simulated</option>
+                        </select>
+                        <button class="btn btn-primary" id="btn-quick-open-day">
+                            <i class="fa-solid fa-door-open"></i> Open Fiscal Day
+                        </button>
+                        <button class="btn btn-warning" id="btn-quick-close-day">
+                            <i class="fa-solid fa-door-closed"></i> Close Fiscal Day
+                        </button>
+                        <button class="btn btn-secondary" id="btn-quick-sync-config">
+                            <i class="fa-solid fa-arrows-rotate"></i> Sync ZIMRA Config
+                        </button>
+                        <button class="btn btn-accent" id="btn-quick-retry-queue">
+                            <i class="fa-solid fa-paper-plane"></i> Retry Queue
+                        </button>
+                        <button class="btn btn-outline" id="btn-quick-register-modal">
+                            <i class="fa-solid fa-key"></i> Register Device
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Split View -->
+                <div class="split-view">
+                    <!-- Recent Invoices -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-receipt"></i> Recent Fiscal Documents</h3>
+                            <button class="btn btn-link" data-tab-jump="invoices">View All <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div class="table-responsive recent-docs-table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice No</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overview-recent-invoices">
+                                    <tr><td colspan="6" class="text-center">Loading recent invoices...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Live Audit Feed -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-terminal"></i> Live System Audit Stream</h3>
+                            <button class="btn btn-link" data-tab-jump="audit-logs">View All <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div class="audit-feed" id="overview-audit-feed">
+                            <div class="text-center p-3">Loading audit logs...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: FISCAL DAY ADMIN -->
+            <section class="tab-pane" id="tab-fiscal-day">
+                <!-- Row 1: Profile & Auto Schedule -->
+                <div class="grid-2col">
+                    <!-- Device Profile Card -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-microchip"></i> Active Fiscal Device Profile</h3>
+                            <span class="badge badge-success" id="admin-device-mode">Operating Mode: --</span>
+                        </div>
+                        <div class="device-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Device ID</span>
+                                <div class="detail-value highlight" style="display: flex; align-items: center; margin-top: 2px;">
+                                    <select id="admin-device-select" class="form-select-sm" style="background: rgba(15, 23, 42, 0.8); border: 1px solid var(--primary); color: #38BDF8; font-weight: 700; padding: 4px 8px; border-radius: var(--radius-sm); font-family: var(--font-mono); cursor: pointer; width: 100%; font-size: 13px;" title="Switch Active Fiscal Device Profile">
+                                        <option value="">Loading devices...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Serial Number</span>
+                                <span class="detail-value" id="admin-serial">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Taxpayer Name</span>
+                                <span class="detail-value" id="admin-taxpayer-name">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Taxpayer TIN</span>
+                                <span class="detail-value" id="admin-tin">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Current Fiscal Day</span>
+                                <span class="detail-value" id="admin-fiscal-day-no">#--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Fiscal Day Status</span>
+                                <span class="detail-value badge" id="admin-fiscal-day-status">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Day Opened Time</span>
+                                <span class="detail-value" id="admin-day-opened-at">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Global Receipt Counter</span>
+                                <span class="detail-value" id="admin-global-counter">#--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ECC Certificate Status</span>
+                                <span class="detail-value" id="admin-cert-status"><i class="fa-solid fa-circle-xmark text-danger"></i> Missing</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Private Key Encryption</span>
+                                <span class="detail-value" id="admin-key-status"><i class="fa-solid fa-lock text-success"></i> Encrypted KeyStore</span>
+                            </div>
+                        </div>
+
+                        <div class="button-group mt-4">
+                            <button class="btn btn-primary" id="btn-admin-open-day">
+                                <i class="fa-solid fa-door-open"></i> Open Fiscal Day
+                            </button>
+                            <button class="btn btn-danger" id="btn-admin-close-day">
+                                <i class="fa-solid fa-door-closed"></i> Close Fiscal Day
+                            </button>
+                            <button class="btn btn-secondary" id="btn-admin-sync">
+                                <i class="fa-solid fa-arrows-rotate"></i> Sync Config from ZIMRA
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Auto Fiscal Day Schedule Card -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <h3><i class="fa-solid fa-clock-rotate-left"></i> Auto Fiscal Day Schedule <span class="badge badge-warning hidden" id="sched-unsaved-badge" style="font-size: 10px; margin-left: 6px;">Unsaved Changes</span></h3>
+                            <span class="badge badge-secondary" id="sched-status-badge">Schedule: Off</span>
+                        </div>
+                        <form id="form-fiscal-day-schedule" class="form-grid">
+                            <div class="form-group">
+                                <div class="toggle-switch-wrapper" style="justify-content: flex-start;">
+                                    <label class="switch">
+                                        <input type="checkbox" id="sched-enabled">
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <span class="toggle-label" style="font-weight: 600;">Enable Automatic Open & Close Schedule</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-open-time">Auto Open Time (CAT / UTC+2)</label>
+                                <input type="time" id="sched-open-time" class="form-input" required value="06:00">
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-close-time">Auto Close Time (CAT / UTC+2)</label>
+                                <input type="time" id="sched-close-time" class="form-input" required value="22:00">
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-max-hrs">Max Day Duration (Hours)</label>
+                                <input type="number" id="sched-max-hrs" class="form-input" min="1" max="24" value="24">
+                            </div>
+                            <div class="form-group">
+                                <label for="sched-timezone">Timezone</label>
+                                <input type="text" id="sched-timezone" class="form-input" value="(UTC + 02:00) Harare, Pretoria" readonly>
+                            </div>
+                            <div class="mt-2">
+                                <button type="submit" class="btn btn-primary btn-block" id="btn-save-schedule">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Fiscal Day Schedule Settings
+                                </button>
+                            </div>
+                        </form>
+                        <div id="sched-response-box" class="response-box hidden mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Device Registration & Tax Code Management (Shorter & Compact) -->
+                <div class="grid-2col mt-4">
+                    <!-- Register / Reconfigure Device Card (Shorter) -->
+                    <div class="panel glass" style="padding: 16px 20px;">
+                        <div class="panel-header" style="margin-bottom: 12px;">
+                            <h3><i class="fa-solid fa-key"></i> Device Registration & Cryptography</h3>
+                        </div>
+                        <form id="form-register-device" class="form-grid" style="gap: 10px;">
+                            <div class="form-group">
+                                <label for="reg-device-id">Device ID</label>
+                                <input type="number" id="reg-device-id" required placeholder="e.g. 1042" min="1" style="padding: 7px 10px;">
+                            </div>
+                            <div class="form-group">
+                                <label for="reg-activation-key">ZIMRA Activation Key</label>
+                                <input type="text" id="reg-activation-key" required placeholder="Enter ZIMRA activation key" style="padding: 7px 10px;">
+                            </div>
+                            <button type="submit" class="btn btn-accent btn-block" id="btn-submit-registration" style="padding: 7px 14px; font-size: 12px;">
+                                <i class="fa-solid fa-certificate"></i> Register Device & Issue Certificate
+                            </button>
+                        </form>
+                        <div id="reg-response-box" class="response-box hidden mt-2"></div>
+                    </div>
+
+                    <!-- Manage Tax Codes Card (Shorter) -->
+                    <div class="panel glass" style="padding: 16px 20px;">
+                        <div class="panel-header" style="margin-bottom: 10px;">
+                            <div>
+                                <h3><i class="fa-solid fa-percent"></i> Tax Code & Rate Management <span class="badge badge-warning hidden" id="tax-codes-unsaved-badge" style="font-size: 10px; margin-left: 6px;">Unsaved Changes</span></h3>
+                                <span class="panel-subtitle">Configure ERP-to-ZIMRA fiscal tax rates & mappings</span>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline" id="btn-add-tax-code-row" style="padding: 4px 10px; font-size: 11px; white-space: nowrap;">
+                                <i class="fa-solid fa-plus"></i> Add Tax Code
+                            </button>
+                        </div>
+                        <div class="table-responsive" style="max-height: 160px; overflow-y: auto;">
+                            <table class="data-table compact-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">ERP Tax Code</th>
+                                        <th style="width: 14%;">ZIMRA</th>
+                                        <th style="width: 13%;">Tax ID</th>
+                                        <th style="width: 14%;">Tax %</th>
+                                        <th style="width: 26%;">Description</th>
+                                        <th style="width: 8%;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tax-codes-table-body">
+                                    <tr><td colspan="6" class="text-center">Loading tax codes...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-accent btn-block" id="btn-save-tax-codes" style="padding: 6px 12px; font-size: 12px;">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Tax Code Mappings
+                            </button>
+                        </div>
+                        <div id="tax-codes-response-box" class="response-box hidden mt-2"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: OFFLINE QUEUE -->
+            <section class="tab-pane" id="tab-offline-queue">
+                <div class="panel glass">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-layer-group"></i> Offline Queue Worker Status</h3>
+                            <span class="panel-subtitle">Sequential background dispatch for offline transactions</span>
+                        </div>
+                        <button class="btn btn-accent" id="btn-retry-queue-tab">
+                            <i class="fa-solid fa-paper-plane"></i> Force Retry All Failed Items
+                        </button>
+                    </div>
+
+                    <div class="queue-summary-cards">
+                        <div class="q-card q-queued">
+                            <span class="q-count" id="q-count-queued">0</span>
+                            <span class="q-label">Queued</span>
+                        </div>
+                        <div class="q-card q-processing">
+                            <span class="q-count" id="q-count-processing">0</span>
+                            <span class="q-label">Processing</span>
+                        </div>
+                        <div class="q-card q-failed">
+                            <span class="q-count" id="q-count-failed">0</span>
+                            <span class="q-label">Failed / Retrying</span>
+                        </div>
+                        <div class="q-card q-completed">
+                            <span class="q-count" id="q-count-completed">0</span>
+                            <span class="q-label">Completed</span>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar mt-3">
+                        <input type="text" id="filter-queue-search" placeholder="Search Invoice No or Device ID..." class="form-input">
+                        <select id="filter-queue-device" class="form-select">
+                            <option value="">All Devices</option>
+                        </select>
+                        <select id="filter-queue-status" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="Queued">Queued</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Failed">Failed / Retrying</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <button class="btn btn-secondary" id="btn-apply-queue-filters">
+                            <i class="fa-solid fa-filter"></i> Filter
+                        </button>
+                    </div>
+
+                    <div class="table-responsive mt-3">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Device ID</th>
+                                    <th>Invoice No</th>
+                                    <th>Receipt Type</th>
+                                    <th>Global # (Seq)</th>
+                                    <th>Status</th>
+                                    <th>Age / Queued At</th>
+                                    <th>Last Error</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queue-table-body">
+                                <tr><td colspan="7" class="text-center">Loading offline queue...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Queue Pagination -->
+                    <div class="pagination-bar">
+                        <span class="pagination-info" id="queue-pagination-info">Showing 0 of 0 items</span>
+                        <div class="pagination-controls">
+                            <button class="btn btn-icon" id="btn-queue-page-prev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="queue-page-current-text">Page 1 of 1</span>
+                            <button class="btn btn-icon" id="btn-queue-page-next" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: INVOICE EXPLORER -->
+            <section class="tab-pane" id="tab-invoices">
+                <div class="panel glass">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-receipt"></i> Fiscalized Invoice Explorer</h3>
+                        <div class="filter-bar">
+                            <input type="text" id="filter-invoice-search" placeholder="Search Invoice No or Device ID..." class="form-input">
+                            <select id="filter-invoice-status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="Fiscalized">Fiscalized</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                            <select id="filter-invoice-currency" class="form-select">
+                                <option value="">All Currencies</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="ZWG">ZWG / ZIG (ZiG)</option>
+                            </select>
+                            <button class="btn btn-secondary" id="btn-apply-filters">
+                                <i class="fa-solid fa-filter"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice No</th>
+                                    <th>Type</th>
+                                    <th>Currency</th>
+                                    <th>Total Amount</th>
+                                    <th>Global Receipt #</th>
+                                    <th>Fiscal Status</th>
+                                    <th>Created At</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoices-table-body">
+                                <tr><td colspan="8" class="text-center">Loading fiscal documents...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination-bar">
+                        <span class="pagination-info" id="pagination-info">Showing 0 of 0 items</span>
+                        <div class="pagination-controls">
+                            <button class="btn btn-icon" id="btn-page-prev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="page-current-text">Page 1 of 1</span>
+                            <button class="btn btn-icon" id="btn-page-next" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4.5: REPORTS & Z-REPORTS -->
+            <section class="tab-pane" id="tab-reports">
+                <!-- Top Row: PDF Storage Location & X-Report Controls -->
+                <div class="grid-2col mb-4">
+                    <!-- Storage Path Card -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-folder-open"></i> Z-Reports PDF Storage Location</h3>
+                                <span class="panel-subtitle">Set directory where Z-Reports and X-Reports PDF files are saved</span>
+                            </div>
+                            <span class="badge badge-success" id="reports-path-status-badge">Active</span>
+                        </div>
+
+                        <form id="form-reports-storage-config">
+                            <div class="form-group mb-3">
+                                <label for="input-reports-storage-path">PDF Target Storage Directory Path</label>
+                                <div class="input-with-btn">
+                                    <input type="text" id="input-reports-storage-path" class="form-input" required placeholder="e.g. C:\FDMS\ZReports" style="font-family: var(--font-mono); font-size: 12px;">
+                                    <button type="button" class="btn btn-accent" id="btn-browse-reports-storage" title="Browse File System Directory">
+                                        <i class="fa-solid fa-folder-tree"></i> Browse...
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="btn-reset-storage-path" title="Reset to Default">
+                                        <i class="fa-solid fa-rotate-left"></i> Default
+                                    </button>
+                                </div>
+                                <small style="font-size: 11px; color: var(--text-muted); display: block; margin-top: 6px;">
+                                    When a fiscal day is closed, a PDF Z-Report is automatically written to this location.
+                                </small>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block" id="btn-save-reports-storage">
+                                <i class="fa-solid fa-floppy-disk"></i> Save Storage Directory Location
+                            </button>
+                        </form>
+                        <div id="reports-storage-response-box" class="response-box hidden mt-3"></div>
+                    </div>
+
+                    <!-- X-Report On-Demand Card -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-chart-pie"></i> Generate Interim X-Report</h3>
+                                <span class="panel-subtitle">Real-time readout of active day transactions (does NOT close day)</span>
+                            </div>
+                            <span class="badge badge-secondary" id="xreport-day-status-badge">Day #--</span>
+                        </div>
+
+                        <div class="p-3 mb-3" style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-sm);">
+                            <div style="font-size: 12px; color: var(--text-main); line-height: 1.5;">
+                                <i class="fa-solid fa-circle-info text-primary"></i> <strong>What is an X-Report?</strong><br>
+                                An X-Report displays fiscalized transactions from the opening of the current fiscal day up to the present moment without closing the fiscal day.
+                            </div>
+                        </div>
+
+                        <div class="button-group">
+                            <button type="button" class="btn btn-accent btn-block" id="btn-generate-xreport">
+                                <i class="fa-solid fa-bolt"></i> Generate X-Report (Current Day)
+                            </button>
+                        </div>
+
+                        <div id="xreport-response-box" class="response-box hidden mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Historical Z-Reports Table -->
+                <div class="panel glass">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-table-list"></i> Historical Z-Reports Ledger</h3>
+                            <span class="panel-subtitle">All closed fiscal day Z-Reports with generated PDF documents</span>
+                        </div>
+                        <button class="btn btn-secondary" id="btn-refresh-zreports-table">
+                            <i class="fa-solid fa-rotate-right"></i> Refresh Table
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fiscal Day #</th>
+                                    <th>Report Date</th>
+                                    <th>Receipt Range</th>
+                                    <th>Docs Count</th>
+                                    <th>USD Sales ($)</th>
+                                    <th>ZiG Sales (ZiG)</th>
+                                    <th>PDF File Name</th>
+                                    <th>Generated At</th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="zreports-table-body">
+                                <tr><td colspan="9" class="text-center">Loading Z-Reports...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Z-Reports Pagination -->
+                    <div class="pagination-bar">
+                        <span class="pagination-info" id="zreports-pagination-info">Showing 0 of 0 items</span>
+                        <div class="pagination-controls">
+                            <button class="btn btn-icon" id="btn-zreports-page-prev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="zreports-page-current-text">Page 1 of 1</span>
+                            <button class="btn btn-icon" id="btn-zreports-page-next" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: TEST FACILITY & FISCALIZATION SIMULATOR -->
+            <section class="tab-pane" id="tab-test-facility">
+                <!-- Mode & Network Simulator Toolbar -->
+                <div class="panel glass mode-toolbar-panel mb-4">
+                    <div class="mode-toolbar-content">
+                        <div class="mode-info">
+                            <div class="mode-icon-box" id="sim-mode-icon-box">
+                                <i class="fa-solid fa-wifi"></i>
+                            </div>
+                            <div>
+                                <h3 id="sim-mode-title">Current Operating Mode: ONLINE</h3>
+                                <p id="sim-mode-desc" class="text-muted">Invoices are submitted directly to ZIMRA FDMS in real-time, receiving official server signatures.</p>
+                            </div>
+                        </div>
+                        <div class="mode-actions">
+                            <div class="toggle-switch-wrapper">
+                                <span class="toggle-label">Online</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-sim-mode">
+                                    <span class="slider round"></span>
+                                </label>
+                                <span class="toggle-label">Simulated Offline</span>
+                            </div>
+                            <button class="btn btn-accent" id="btn-sim-flush-queue">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Sync & Flush Queue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid-2col-test">
+                    <!-- Left Column: Document Builder Form -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-file-invoice-dollar"></i> Fiscal Document Builder</h3>
+                                <span class="panel-subtitle">Create and test fiscal transactions in real-time</span>
+                            </div>
+                            <div class="preset-badge">
+                                <i class="fa-solid fa-bolt text-warning"></i> Presets
+                            </div>
+                        </div>
+
+                        <!-- Presets Bar -->
+                        <div class="preset-ribbon mb-3">
+                            <button class="btn btn-sm btn-preset" id="preset-retail-usd">
+                                <i class="fa-solid fa-cart-shopping"></i> Standard Retail USD ($115)
+                            </button>
+                            <button class="btn btn-sm btn-preset" id="preset-split-multicurrency">
+                                <i class="fa-solid fa-money-bill-transfer"></i> Multi-Currency (USD + ZiG)
+                            </button>
+                            <button class="btn btn-sm btn-preset" id="preset-credit-note">
+                                <i class="fa-solid fa-rotate-left"></i> Credit Note
+                            </button>
+                            <button class="btn btn-sm btn-preset" id="preset-debit-note">
+                                <i class="fa-solid fa-file-circle-plus"></i> Debit Note
+                            </button>
+                        </div>
+
+                        <form id="form-test-invoice">
+                            <!-- Document Parameters -->
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label for="test-invoice-no">Invoice Number</label>
+                                    <div class="input-with-btn">
+                                        <input type="text" id="test-invoice-no" class="form-input" required placeholder="INV-20260819-001">
+                                        <button type="button" class="btn btn-icon btn-secondary" id="btn-gen-invoice-no" title="Generate New No">
+                                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="test-receipt-type">Receipt Type</label>
+                                    <select id="test-receipt-type" class="form-select">
+                                        <option value="FiscalInvoice">Fiscal Invoice</option>
+                                        <option value="CreditNote">Credit Note</option>
+                                        <option value="DebitNote">Debit Note</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="test-currency">Currency</label>
+                                    <select id="test-currency" class="form-select">
+                                        <option value="USD">USD ($)</option>
+                                        <option value="ZWG">ZWG / ZiG (ZiG)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Credit / Debit Note Reference Fields -->
+                            <div id="credit-debit-ref-box" class="form-section-box hidden">
+                                <h5><i class="fa-solid fa-link"></i> Credit / Debit Note Reference Parameters</h5>
+                                <div class="form-row-4">
+                                    <div class="form-group">
+                                        <label for="test-ref-receipt-id">Orig. Receipt ID</label>
+                                        <input type="number" id="test-ref-receipt-id" class="form-input" placeholder="e.g. 10005">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="test-ref-device-id">Orig. Device ID</label>
+                                        <input type="number" id="test-ref-device-id" class="form-input" placeholder="e.g. 1042">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="test-ref-global-no">Orig. Global No</label>
+                                        <input type="number" id="test-ref-global-no" class="form-input" placeholder="e.g. 42">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="test-ref-day-no">Orig. Day No</label>
+                                        <input type="number" id="test-ref-day-no" class="form-input" placeholder="e.g. 1">
+                                    </div>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="test-ref-notes">Reason / Notes</label>
+                                    <input type="text" id="test-ref-notes" class="form-input" placeholder="Reason for adjustment / cancellation">
+                                </div>
+                            </div>
+
+                            <!-- Buyer Info Section -->
+                            <div class="form-section-box mt-3">
+                                <h5><i class="fa-solid fa-user-tag"></i> Buyer & Customer Data</h5>
+                                <div class="form-row-2">
+                                    <div class="form-group">
+                                        <label for="test-buyer-name">Buyer Registered Name</label>
+                                        <input type="text" id="test-buyer-name" class="form-input" placeholder="Acme Logistics Ltd (Optional)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="test-buyer-tin">Buyer TIN (10 digits)</label>
+                                        <input type="text" id="test-buyer-tin" class="form-input" placeholder="2000123456" maxlength="10">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Line Items Section -->
+                            <div class="form-section-box mt-3">
+                                <div class="section-header-flex">
+                                    <h5><i class="fa-solid fa-list-ol"></i> Receipt Line Items</h5>
+                                    <button type="button" class="btn btn-sm btn-outline" id="btn-add-line-item">
+                                        <i class="fa-solid fa-plus"></i> Add Line
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="data-table compact-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Line Name</th>
+                                                <th>HS Code</th>
+                                                <th style="width: 70px;">Qty</th>
+                                                <th style="width: 90px;">Price</th>
+                                                <th style="width: 80px;">Tax</th>
+                                                <th style="width: 90px;">Total</th>
+                                                <th style="width: 35px;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="test-line-items-body">
+                                            <!-- Dynamic Line Rows -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Payment Tenders & Summary -->
+                            <div class="form-section-box mt-3">
+                                <h5><i class="fa-solid fa-wallet"></i> Payment Tenders & Totals</h5>
+                                <div class="payment-totals-grid">
+                                    <div class="payment-inputs">
+                                        <div class="form-group">
+                                            <label>Cash Payment</label>
+                                            <input type="number" step="0.01" id="pay-cash-amt" class="form-input pay-calc-input" placeholder="0.00">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Card / Electronic</label>
+                                            <input type="number" step="0.01" id="pay-card-amt" class="form-input pay-calc-input" placeholder="0.00">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mobile Money (EcoCash)</label>
+                                            <input type="number" step="0.01" id="pay-mobile-amt" class="form-input pay-calc-input" placeholder="0.00">
+                                        </div>
+                                    </div>
+
+                                    <div class="calc-summary-card">
+                                        <div class="calc-row">
+                                            <span>Subtotal (Excl. Tax):</span>
+                                            <strong id="calc-subtotal-val">$0.00</strong>
+                                        </div>
+                                        <div class="calc-row">
+                                            <span>VAT (15% Standard):</span>
+                                            <strong id="calc-vat-val">$0.00</strong>
+                                        </div>
+                                        <div class="calc-row total-row">
+                                            <span>Invoice Total:</span>
+                                            <strong id="calc-total-val">$0.00</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-lg mt-4" id="btn-submit-test-invoice">
+                                <i class="fa-solid fa-paper-plane"></i> Submit & Fiscalize Invoice
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right Column: Fiscalization Inspector Hangar -->
+                    <div class="panel glass" id="fiscalization-inspector-panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-microscope"></i> Fiscalization Inspector</h3>
+                                <span class="panel-subtitle">Real-time receipt & cryptographic verification pane</span>
+                            </div>
+                            <span class="badge badge-secondary" id="sim-result-status-badge">Idle</span>
+                        </div>
+
+                        <!-- Result Navigation Tabs -->
+                        <div class="inspector-tabs mb-3">
+                            <button class="inspector-tab active" data-inspect-tab="receipt">
+                                <i class="fa-solid fa-receipt"></i> Thermal Receipt
+                            </button>
+                            <button class="inspector-tab" data-inspect-tab="crypto">
+                                <i class="fa-solid fa-shield-halved"></i> Crypto Audit
+                            </button>
+                            <button class="inspector-tab" data-inspect-tab="escpos">
+                                <i class="fa-solid fa-print"></i> ESC/POS Stream
+                            </button>
+                            <button class="inspector-tab" data-inspect-tab="json">
+                                <i class="fa-solid fa-code"></i> API JSON
+                            </button>
+                        </div>
+
+                        <div class="inspector-panes">
+                            <!-- Pane 1: Thermal Receipt Preview -->
+                            <div class="inspect-pane active" id="pane-inspect-receipt">
+                                <div class="receipt-placeholder" id="receipt-placeholder">
+                                    <i class="fa-solid fa-receipt placeholder-icon"></i>
+                                    <p>Submit a test invoice to view the rendered fiscal thermal receipt, signatures, and QR code.</p>
+                                </div>
+                                <div class="thermal-receipt-paper hidden" id="thermal-receipt-paper">
+                                    <!-- Rendered Thermal Receipt Content -->
+                                </div>
+                            </div>
+
+                            <!-- Pane 2: Cryptographic Verification -->
+                            <div class="inspect-pane" id="pane-inspect-crypto">
+                                <div id="crypto-audit-placeholder" class="text-muted p-4 text-center">
+                                    Submit a test invoice to view SHA-256 receipt hashes and ECDSA secp256r1 signatures.
+                                </div>
+                                <div id="crypto-audit-content" class="hidden">
+                                    <!-- Crypto Details Injected -->
+                                </div>
+                            </div>
+
+                            <!-- Pane 3: ESC/POS Stream -->
+                            <div class="inspect-pane" id="pane-inspect-escpos">
+                                <div id="escpos-placeholder" class="text-muted p-4 text-center">
+                                    Submit a test invoice to generate 80mm ESC/POS thermal printer binary commands.
+                                </div>
+                                <div id="escpos-content" class="hidden">
+                                    <!-- ESC/POS Details Injected -->
+                                </div>
+                            </div>
+
+                            <!-- Pane 4: Raw JSON Request & Response -->
+                            <div class="inspect-pane" id="pane-inspect-json">
+                                <div id="json-placeholder" class="text-muted p-4 text-center">
+                                    Submit a test invoice to inspect JSON request & response payloads.
+                                </div>
+                                <div id="json-content" class="hidden">
+                                    <!-- JSON Viewer Injected -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: SUBSCRIPTION & LICENSE MANAGEMENT -->
+            <section class="tab-pane" id="tab-subscription">
+                <!-- Top Row: Active Subscription Status Profile & Renewal Form -->
+                <div class="grid-2col mb-4">
+                    <!-- Card 1: Current Subscription Details -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-key"></i> Active Bridge Subscription Profile</h3>
+                                <span class="panel-subtitle">Cryptographically verified offline license details</span>
+                            </div>
+                            <span class="badge badge-success" id="sub-status-badge">ACTIVE</span>
+                        </div>
+
+                        <div class="device-details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Plan Name</span>
+                                <span class="detail-value highlight" id="sub-plan-name">Annual Enterprise</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Taxpayer TIN</span>
+                                <span class="detail-value" id="sub-taxpayer-tin">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Valid From</span>
+                                <span class="detail-value" id="sub-valid-from">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Valid Until (Expiry)</span>
+                                <span class="detail-value" id="sub-valid-to">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Days Remaining</span>
+                                <span class="detail-value" id="sub-days-remaining">--</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">7-Day Grace Period</span>
+                                <span class="detail-value" id="sub-grace-status">Active until --</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Max Allowed Devices</span>
+                                <span class="detail-value" id="sub-max-devices">10 Devices</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Registered Key</span>
+                                <span class="detail-value" id="sub-masked-key" style="font-family: var(--font-mono); font-size: 11px;">FDMS-SUB-****</span>
+                            </div>
+                        </div>
+
+                        <!-- Active Warning Alert Box if any -->
+                        <div id="sub-warning-alert-box" class="response-box box-warning mt-3 hidden">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span id="sub-warning-alert-msg">--</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Renew Subscription Key Form -->
+                    <div class="panel glass">
+                        <div class="panel-header">
+                            <div>
+                                <h3><i class="fa-solid fa-cloud-arrow-up"></i> Renew Subscription Key</h3>
+                                <span class="panel-subtitle">Enter your newly issued API Key string</span>
+                            </div>
+                        </div>
+
+                        <form id="form-activate-subscription">
+                            <div class="form-group mb-3">
+                                <label for="input-renew-api-key">Subscription API Key String</label>
+                                <textarea id="input-renew-api-key" class="form-input" rows="4" required placeholder="Paste your renewed API Key string here (e.g. FDMS-SUB-eyJ0ZW5hbnQiOi...)" style="font-family: var(--font-mono); font-size: 11px; resize: vertical;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-accent btn-block" id="btn-submit-renewal">
+                                <i class="fa-solid fa-certificate"></i> Validate & Activate Renewed Key
+                            </button>
+                        </form>
+                        <div id="sub-renewal-response-box" class="response-box hidden mt-3"></div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Developer / Diagnostic Test Key Generator -->
+                <div class="panel glass mt-4">
+                    <div class="panel-header">
+                        <div>
+                            <h3><i class="fa-solid fa-flask"></i> Subscription Test Vector Generator</h3>
+                            <span class="panel-subtitle">Create signed 1-Month or 1-Year subscription API keys for diagnostics & verification</span>
+                        </div>
+                    </div>
+                    <div class="form-grid" style="grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: flex-end;">
+                        <div class="form-group">
+                            <label for="gen-key-tin">Taxpayer TIN</label>
+                            <input type="text" id="gen-key-tin" class="form-input" value="2000123456">
+                        </div>
+                        <div class="form-group">
+                            <label for="gen-key-plan">License Plan</label>
+                            <select id="gen-key-plan" class="form-select">
+                                <option value="Annual Enterprise">Annual Enterprise (1 Year)</option>
+                                <option value="Standard Monthly">Standard Monthly (1 Month)</option>
+                                <option value="Trial / Demo">Trial / Demo (1 Month)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gen-key-months">Duration</label>
+                            <select id="gen-key-months" class="form-select">
+                                <option value="12" selected>12 Months (1 Year)</option>
+                                <option value="1">1 Month</option>
+                                <option value="3">3 Months</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary btn-block" id="btn-generate-test-key">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Generate & Fill Input
+                            </button>
+                        </div>
+                    </div>
+                    <div id="gen-key-result-box" class="mt-3 hidden" style="background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 12px; font-weight: 600; color: var(--accent);">Generated Signed Key:</span>
+                            <button class="btn btn-sm btn-outline" id="btn-copy-gen-key"><i class="fa-solid fa-copy"></i> Copy Key</button>
+                        </div>
+                        <code id="gen-key-output-code" style="word-break: break-all; font-size: 11px; color: #A7F3D0; display: block;">--</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: AUDIT LOGS -->
+            <section class="tab-pane" id="tab-audit-logs">
+                <div class="panel glass">
+                    <div class="panel-header">
+                        <h3><i class="fa-solid fa-list-check"></i> System Diagnostics & Audit Logs</h3>
+                        <div class="filter-bar" style="flex-wrap: wrap; gap: 8px;">
+                            <input type="text" id="filter-audit-invoice" placeholder="Search Invoice / Keywords..." class="form-input" style="min-width: 160px;">
+                            <select id="filter-audit-type" class="form-select" style="min-width: 150px;">
+                                <option value="">All Event Types</option>
+                                <option value="Inbound">Inbound API</option>
+                                <option value="Outbound">Outbound ZIMRA</option>
+                                <option value="OperatingModeToggle">Operating Mode</option>
+                                <option value="QueueForceRetry">Queue Retry</option>
+                                <option value="DeviceAdmin">Device Admin</option>
+                                <option value="Error">Errors Only</option>
+                            </select>
+                            <input type="date" id="filter-audit-from-date" class="form-input" title="From Date" style="min-width: 130px;">
+                            <input type="date" id="filter-audit-to-date" class="form-input" title="To Date" style="min-width: 130px;">
+                            <button class="btn btn-secondary" id="btn-filter-audit">
+                                <i class="fa-solid fa-magnifying-glass"></i> Filter Logs
+                            </button>
+                            <button class="btn btn-outline" id="btn-reset-audit-filters" title="Reset Filters">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Timestamp (UTC)</th>
+                                    <th>Event Type</th>
+                                    <th>Invoice No</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audit-table-body">
+                                <tr><td colspan="5" class="text-center">Loading audit logs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Audit Logs Pagination -->
+                    <div class="pagination-bar">
+                        <span class="pagination-info" id="audit-pagination-info">Showing 0 of 0 items</span>
+                        <div class="pagination-controls">
+                            <button class="btn btn-icon" id="btn-audit-page-prev" disabled><i class="fa-solid fa-chevron-left"></i></button>
+                            <span id="audit-page-current-text">Page 1 of 1</span>
+                            <button class="btn btn-icon" id="btn-audit-page-next" disabled><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 7: USERS & PERMISSIONS -->
+            <section class="tab-pane" id="tab-users">
+                <div class="panel glass">
+                    <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <h3 style="margin: 0;"><i class="fa-solid fa-users-gear"></i> User Directory & Access Control</h3>
+                            <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 0.85rem;">Manage tenant user accounts, assigned roles, and granular feature permissions.</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-admin-open-add-user" style="display: inline-flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-user-plus"></i> Add User
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Email Address</th>
+                                    <th>Role</th>
+                                    <th>Permissions</th>
+                                    <th>Last Login</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table-body">
+                                <tr><td colspan="6" class="text-center">Loading users directory...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL: INVOICE DETAILS & QR CODE -->
+    <div class="modal-overlay hidden" id="modal-invoice-details">
+        <div class="modal-content glass">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-qrcode"></i> Fiscal Receipt Verification & Signatures</h3>
+                <button class="btn-close" id="btn-close-invoice-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-invoice-body">
+                <!-- Dynamic Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: NO REGISTERED DEVICE ERROR -->
+    <div class="modal-overlay hidden" id="modal-no-device-error">
+        <div class="modal-content glass" style="max-width: 520px; border-color: rgba(239, 68, 68, 0.4);">
+            <div class="modal-header">
+                <h3 class="text-danger"><i class="fa-solid fa-triangle-exclamation"></i> Fiscal Device Registration Required</h3>
+                <button class="btn-close" id="btn-close-no-device-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="p-3 mb-3" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-sm); display: flex; gap: 12px; align-items: flex-start;">
+                    <i class="fa-solid fa-shield-xmark fa-2x text-danger" style="margin-top: 2px;"></i>
+                    <div>
+                        <h4 style="font-size: 14px; font-weight: 700; color: #FCA5A5; margin-bottom: 4px;" id="no-device-modal-title">Cannot Perform Fiscal Day Operation</h4>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;" id="no-device-modal-message">
+                            A fiscal day cannot be opened or closed without an active registered fiscal device in the system.
+                        </p>
+                    </div>
+                </div>
+
+                <div style="font-size: 12px; color: var(--text-main); line-height: 1.6; margin-bottom: 20px;">
+                    <p style="margin-bottom: 10px;">
+                        <strong>ZIMRA Compliance Requirement:</strong><br>
+                        Fiscal day operations require an authenticated fiscal device bound to a valid <strong>Device ID</strong>, <strong>Activation Key</strong>, and <strong>secp256r1 mTLS Certificate</strong> to calculate signed Z-Reports and maintain legal receipt counters.
+                    </p>
+                    <div class="p-3" style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: var(--radius-sm);">
+                        <strong style="color: var(--primary);"><i class="fa-solid fa-lightbulb"></i> How to Resolve:</strong>
+                        <ol style="margin: 6px 0 0 18px; padding: 0; color: var(--text-muted);">
+                            <li>Click <strong>Register Device Now</strong> below.</li>
+                            <li>Enter your numeric <strong>Device ID</strong> and <strong>ZIMRA Activation Key</strong>.</li>
+                            <li>Click <strong>Register Device & Issue Certificate</strong> to generate keys and activate.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="button-group" style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="btn-dismiss-no-device-modal">Dismiss</button>
+                    <button class="btn btn-primary" id="btn-goto-device-reg">
+                        <i class="fa-solid fa-key"></i> Register Device Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: TENANT CLIENT LOGIN -->
+    <div class="modal-overlay hidden" id="modal-pin-login" style="z-index: 10000; background: rgba(5, 8, 22, 0.95); backdrop-filter: blur(10px);">
+        <div class="modal-content glass" style="max-width: 420px; border-color: rgba(99, 102, 241, 0.4);">
+            <div class="modal-header" style="justify-content: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; text-align: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div id="login-brand-logo-container" style="width: 54px; height: 54px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 24px; overflow: hidden; padding: 6px;">
+                        <i class="fa-solid fa-shield-halved" id="login-brand-logo-icon"></i>
+                        <img id="login-brand-logo-img" src="" alt="Logo" class="hidden" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                    </div>
+                    <div id="login-company-name-text" style="font-size: 13px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;">Apex Consultancy Hub</div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main);">Users Portal Login</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">Enter your account credentials to access console</span>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px 10px;">
+                <form id="form-pin-login">
+                    <div class="form-group mb-3 text-left" style="text-align: left;">
+                        <label for="input-login-email" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted);"><i class="fa-solid fa-envelope"></i> Email Address / Username</label>
+                        <input type="email" id="input-login-email" class="form-input" placeholder="e.g. manager@company.co.zw" required autocomplete="username" style="width: 100%;" autofocus>
+                    </div>
+
+                    <div class="form-group mb-3 text-left" style="text-align: left;">
+                        <label for="input-login-password" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted);"><i class="fa-solid fa-key"></i> Password</label>
+                        <input type="password" id="input-login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password" style="width: 100%;">
+                    </div>
+
+                    <div id="login-pin-response" class="response-box hidden mb-3" style="font-size: 12px; padding: 10px;"></div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-submit-pin-login">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal
+                    </button>
+                </form>
+                <div style="margin-top: 18px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; padding: 0 5px;">
+                    <button type="button" id="btn-open-register-modal" onclick="if(window.showRegisterModal){window.showRegisterModal();}else{window.location.href='register.html';}" style="background: none; border: none; color: #818CF8; font-weight: 600; font-size: 12px; cursor: pointer; padding: 0;"><i class="fa-solid fa-user-plus"></i> Register Here</button>
+                    <button type="button" id="btn-open-forgot-pin" onclick="if(window.showResetPinModal){window.showResetPinModal();}" style="background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0;">Forgot PIN / Access?</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: PUBLIC CLIENT REGISTRATION -->
+    <div class="modal-overlay hidden" id="modal-tenant-register" style="z-index: 10001; background: rgba(5, 8, 22, 0.95); backdrop-filter: blur(10px);">
+        <div class="modal-content glass" style="max-width: 440px; border-color: rgba(99, 102, 241, 0.4);">
+            <div class="modal-header" style="justify-content: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; text-align: center;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div id="register-brand-logo-icon" style="width: 50px; height: 50px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 22px;">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <img id="register-brand-logo-img" src="" alt="Partner Logo" class="hidden" style="max-height: 50px; max-width: 160px; object-fit: contain;">
+                    <div id="register-company-name-text" style="font-size: 13px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;">Apex Consultancy Hub</div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main);">Public Account Registration</h3>
+                    <span style="font-size: 12px; color: var(--text-muted);">Enter your Tenant API Key to register your user account</span>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px 10px;">
+                <form id="form-tenant-register">
+                    <div class="form-group mb-3 text-left" style="text-align: left;">
+                        <label for="input-register-apikey" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted);"><i class="fa-solid fa-key"></i> Tenant API Key *</label>
+                        <input type="text" id="input-register-apikey" class="form-input" placeholder="e.g. css_tenant_prod_..." required style="width: 100%; font-family: var(--font-mono); font-size: 13px;">
+                    </div>
+
+                    <div class="form-group mb-3 text-left" style="text-align: left;">
+                        <label for="input-register-email" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted);"><i class="fa-solid fa-envelope"></i> Email Address *</label>
+                        <input type="email" id="input-register-email" class="form-input" placeholder="e.g. name@company.co.zw" required style="width: 100%;">
+                    </div>
+
+                    <div class="form-group mb-3 text-left" style="text-align: left;">
+                        <label for="input-register-fullname" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted);"><i class="fa-solid fa-user"></i> Full Name</label>
+                        <input type="text" id="input-register-fullname" class="form-input" placeholder="e.g. John Doe" style="width: 100%;">
+                    </div>
+
+                    <div class="form-group mb-3 text-left" style="text-align: left;">
+                        <label for="input-register-password" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-muted);"><i class="fa-solid fa-lock"></i> Password *</label>
+                        <input type="password" id="input-register-password" class="form-input" placeholder="Minimum 6 characters" minlength="6" required style="width: 100%;">
+                    </div>
+
+                    <div id="register-response" class="response-box hidden mb-3" style="font-size: 12px; padding: 10px;"></div>
+
+                    <button type="submit" class="btn btn-accent btn-block btn-lg" id="btn-submit-tenant-register">
+                        <i class="fa-solid fa-user-plus"></i> Register & Access Portal
+                    </button>
+                </form>
+                <div style="margin-top: 15px; font-size: 12px; text-align: center;">
+                    <button type="button" id="btn-back-to-tenant-login" onclick="if(window.showPinLoginModal){window.showPinLoginModal();}" style="background: none; border: none; color: #818CF8; font-weight: 600; cursor: pointer; padding: 0;"><i class="fa-solid fa-arrow-left"></i> Already have an account? Sign In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: RESET ADMIN PIN (16-DIGIT RECOVERY CODE) -->
+    <div class="modal-overlay hidden" id="modal-reset-pin" style="z-index: 10002; background: rgba(5, 8, 22, 0.96); backdrop-filter: blur(12px);">
+        <div class="modal-content glass" style="max-width: 440px; text-align: center; border-color: rgba(239, 68, 68, 0.4);">
+            <div class="modal-header" style="justify-content: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; color: #EF4444; font-size: 22px;">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: var(--text-main);">Master PIN Reset</h3>
+                    <span style="font-size: 11px; color: var(--text-muted);">Enter 16-Digit Master Reset Code to restore PIN to default '0000'</span>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px 10px;">
+                <form id="form-reset-pin">
+                    <div class="form-group mb-3">
+                        <label for="input-reset-code" style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px;">16-Digit Master Reset Code</label>
+                        <input type="text" id="input-reset-code" maxlength="19" class="form-input" placeholder="1234-5678-9012-3456" required autocomplete="off" style="font-size: 16px; letter-spacing: 2px; text-align: center; font-family: var(--font-mono); padding: 10px; width: 90%; margin: 0 auto;">
+                        <small style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 6px;">Format: 16 numeric digits (dashes allowed)</small>
+                    </div>
+
+                    <div id="reset-pin-response" class="response-box hidden mb-3" style="font-size: 12px; padding: 10px;"></div>
+
+                    <button type="submit" class="btn btn-danger btn-block btn-lg" id="btn-submit-reset-pin">
+                        <i class="fa-solid fa-rotate-left"></i> Reset PIN to Default (0000)
+                    </button>
+
+                    <button type="button" class="btn btn-secondary btn-block mt-2" id="btn-back-to-login">
+                        <i class="fa-solid fa-arrow-left"></i> Return to Login
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FORCE INITIAL PIN CHANGE -->
+    <div class="modal-overlay hidden" id="modal-force-pin-change" style="z-index: 10001; background: rgba(5, 8, 22, 0.96); backdrop-filter: blur(12px);">
+        <div class="modal-content glass" style="max-width: 460px; border-color: rgba(245, 158, 11, 0.5);">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; color: #F59E0B; font-size: 20px;">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #FCD34D;">Mandatory Initial PIN Change</h3>
+                        <span style="font-size: 11px; color: var(--text-muted);">Default factory PIN ('0000') detected. Create a secure PIN.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 20px 10px;">
+                <form id="form-force-pin-change">
+                    <div class="form-group mb-3">
+                        <label for="input-current-pin" style="font-size: 12px;">Current Default PIN</label>
+                        <input type="password" id="input-current-pin" class="form-input" value="0000" readonly required style="font-family: var(--font-mono); text-align: center; font-size: 18px; letter-spacing: 4px;">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="input-new-pin" style="font-size: 12px;">New Secure PIN (4 to 8 digits)</label>
+                        <input type="password" id="input-new-pin" maxlength="8" class="form-input" placeholder="Enter new PIN" required autocomplete="off" style="font-family: var(--font-mono); text-align: center; font-size: 18px; letter-spacing: 4px;">
+                        <small style="font-size: 10px; color: var(--text-muted); display: block; margin-top: 4px;">Cannot be '0000', repetitive (1111), or simple sequence (1234).</small>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="input-confirm-pin" style="font-size: 12px;">Confirm New PIN</label>
+                        <input type="password" id="input-confirm-pin" maxlength="8" class="form-input" placeholder="Confirm new PIN" required autocomplete="off" style="font-family: var(--font-mono); text-align: center; font-size: 18px; letter-spacing: 4px;">
+                    </div>
+
+                    <div id="force-pin-response" class="response-box hidden mb-3" style="font-size: 12px; padding: 10px;"></div>
+
+                    <button type="submit" class="btn btn-accent btn-block btn-lg" id="btn-submit-force-pin">
+                        <i class="fa-solid fa-floppy-disk"></i> Update PIN & Unlock System
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Directory Browser Modal -->
+    <div class="modal-overlay hidden" id="modal-browse-directory" style="z-index: 10000;">
+        <div class="modal-content glass" style="max-width: 600px; width: 90%;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(99, 102, 241, 0.15); display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 16px;">
+                        <i class="fa-solid fa-folder-tree"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 16px; font-weight: 700;">Select PDF Storage Directory</h3>
+                        <span style="font-size: 11px; color: var(--text-muted);">Browse local file system folders</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-icon" id="btn-close-browse-modal" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: 16px 0 0 0;">
+                <!-- Drives Bar & Navigation Header -->
+                <div style="display: flex; gap: 8px; margin-bottom: 10px; align-items: center; flex-wrap: wrap;">
+                    <div id="dir-drives-bar" style="display: flex; gap: 4px;"></div>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-dir-up-level" title="Go to Parent Directory">
+                        <i class="fa-solid fa-turn-up"></i> Up
+                    </button>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <input type="text" id="dir-current-path-input" class="form-input" style="font-family: var(--font-mono); font-size: 12px; width: 100%;" readonly>
+                </div>
+
+                <!-- Directory List Box -->
+                <div id="dir-list-container" style="max-height: 260px; min-height: 180px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(15, 23, 42, 0.4); padding: 6px;">
+                    <div class="text-center text-muted p-3"><i class="fa-solid fa-spinner fa-spin"></i> Loading directories...</div>
+                </div>
+
+                <div id="dir-browse-error" class="response-box hidden mt-2 text-danger" style="font-size: 11px; padding: 8px;"></div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-browse-modal">Cancel</button>
+                    <button type="button" class="btn btn-accent" id="btn-confirm-browse-dir">
+                        <i class="fa-solid fa-check"></i> Select This Directory
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Script -->
+    <!-- MODAL: ADMIN ADD USER -->
+    <div class="modal-overlay hidden" id="modal-admin-add-user">
+        <div class="modal-content glass" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-plus" style="color: var(--primary);"></i> Add Tenant Team Member</h3>
+                <button class="btn-close" id="btn-close-admin-add-user">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-admin-add-user">
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="admin-add-user-name" class="form-input" required placeholder="Jane Doe">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="admin-add-user-email" class="form-input" required placeholder="jane@company.co.zw">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Password</label>
+                        <input type="password" id="admin-add-user-password" class="form-input" required placeholder="Minimum 6 characters">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Role</label>
+                        <select id="admin-add-user-role" class="form-select">
+                            <option value="TenantOperator">Tenant Operator</option>
+                            <option value="TenantAdmin">Tenant Admin</option>
+                            <option value="TenantViewer">Tenant Viewer</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label class="form-label">Granted Permissions</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem;">
+                            <label><input type="checkbox" id="admin-add-perm-dash" checked> View Dashboard</label>
+                            <label><input type="checkbox" id="admin-add-perm-docs" checked> View Documents</label>
+                            <label><input type="checkbox" id="admin-add-perm-devs" checked> Manage Devices</label>
+                            <label><input type="checkbox" id="admin-add-perm-users"> Manage Users</label>
+                        </div>
+                    </div>
+                    <div id="admin-add-user-error" class="hidden response-box box-danger mb-3 p-2 text-center"></div>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-admin-add-user">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create User</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADMIN EDIT USER PERMISSIONS -->
+    <div class="modal-overlay hidden" id="modal-admin-edit-user">
+        <div class="modal-content glass" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-user-pen" style="color: var(--primary);"></i> Edit User Role & Permissions</h3>
+                <button class="btn-close" id="btn-close-admin-edit-user">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-admin-edit-user">
+                    <input type="hidden" id="admin-edit-user-id">
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">User Email</label>
+                        <input type="text" id="admin-edit-user-email" class="form-input" readonly style="opacity: 0.7;">
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Role</label>
+                        <select id="admin-edit-user-role" class="form-select">
+                            <option value="TenantOperator">Tenant Operator</option>
+                            <option value="TenantAdmin">Tenant Admin</option>
+                            <option value="TenantViewer">Tenant Viewer</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label class="form-label">Account Status</label>
+                        <select id="admin-edit-user-active" class="form-select">
+                            <option value="true">Active Account</option>
+                            <option value="false">Deactivated</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label class="form-label">Granted Permissions</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem;">
+                            <label><input type="checkbox" id="admin-edit-perm-dash"> View Dashboard</label>
+                            <label><input type="checkbox" id="admin-edit-perm-docs"> View Documents</label>
+                            <label><input type="checkbox" id="admin-edit-perm-devs"> Manage Devices</label>
+                            <label><input type="checkbox" id="admin-edit-perm-users"> Manage Users</label>
+                        </div>
+                    </div>
+                    <div id="admin-edit-user-error" class="hidden response-box box-danger mb-3 p-2 text-center"></div>
+                    <div style="display: flex; justify-content: flex-end; gap: 8px;">
+                        <button type="button" class="btn btn-secondary" id="btn-cancel-admin-edit-user">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Permissions</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

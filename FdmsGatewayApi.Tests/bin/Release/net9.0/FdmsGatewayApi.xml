@@ -1,0 +1,426 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FdmsGatewayApi</name>
+    </assembly>
+    <members>
+        <member name="P:FdmsGatewayApi.Config.MultiTenancyOptions.Mode">
+            <summary>
+            Deployment Mode: "MultiTenant", "SingleTenantCloud", "SingleTenantAppliance"
+            </summary>
+        </member>
+        <member name="P:FdmsGatewayApi.Config.MultiTenancyOptions.PartnerKey">
+            <summary>
+            Partner Key identifying the hosting partner (e.g., "MJS_SERPA_PROD", "TTCS_CLOUD")
+            </summary>
+        </member>
+        <member name="P:FdmsGatewayApi.Config.MultiTenancyOptions.PartnerName">
+            <summary>
+            Partner Business Name
+            </summary>
+        </member>
+        <member name="P:FdmsGatewayApi.Config.MultiTenancyOptions.DefaultTenantApiKey">
+            <summary>
+            Default Tenant API Key used for SingleTenantCloud mode
+            </summary>
+        </member>
+        <member name="P:FdmsGatewayApi.Config.MultiTenancyOptions.InitialWholesaleTokens">
+            <summary>
+            Initial wholesale tokens seeded for new partner accounts
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.AdminQueueController">
+            <summary>
+            Administrative Dead-Letter Queue Management Endpoints.
+            Allows operators to inspect, retry, and manage failed invoice transmissions in the offline queue.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.AdminQueueController.GetQueueItems(System.String,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            List queued and dead-lettered invoices in the offline queue.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.AdminQueueController.RetryDeadLetterItems(System.Nullable{System.Int32},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Retry dead-lettered items by resetting their status to 'Queued' and resetting retry counts.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.AdminQueueController.PurgeDeadLetterItems(System.Threading.CancellationToken)">
+            <summary>
+            Purge dead-lettered items from the database.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.AuditReportController">
+            <summary>
+            Fiscal Reports and Hash Chain Verification Audit Endpoints.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.AuditReportController.GetZReport(System.Int32,System.Nullable{System.DateTime},System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Generate or retrieve a Z-Report summary by Device ID and Date/Fiscal Day Number.
+            </summary>
+            <param name="deviceId">Registered ZIMRA Fiscal Device ID.</param>
+            <param name="date">Target date (optional, defaults to today).</param>
+            <param name="fiscalDayNo">Specific Fiscal Day Number (optional).</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.AuditReportController.VerifyHashChain(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Perform cryptographic hash chain verification across all documents for a given device.
+            </summary>
+            <param name="deviceId">Device ID to audit.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Hash chain integrity verification status, total documents checked, and break index if tampered.</returns>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.AuthController">
+            <summary>
+            Admin Dashboard Authentication and PIN Security Endpoints.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.BrandingController">
+            <summary>
+            White-label Branding and Portal Customization Endpoints.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.DashboardController">
+            <summary>
+            Gateway Operational Dashboard and Metrics Telemetry Endpoints.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.DeviceAdminController">
+            <summary>
+            Fiscal Device Configuration and Fiscal Day Operations Endpoints.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DeviceAdminController.SyncConfig(System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Trigger manual configuration sync from ZIMRA for a specific device (or all registered devices if deviceId is omitted).
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DeviceAdminController.OpenDay(System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Open a new fiscal day for a specific device (or all registered devices if deviceId is omitted).
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DeviceAdminController.CloseDay(System.Nullable{System.Int32},System.Threading.CancellationToken)">
+            <summary>
+            Close current fiscal day and auto-generate Z-Report for a specific device (or all registered devices if deviceId is omitted).
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DeviceAdminController.GetStatus(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Get current fiscal day status, receipt counters, and operating mode for a device.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.DiagnosticsController">
+            <summary>
+            System Diagnostics, Health Checks and Operational Queue Telemetry Endpoints.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DiagnosticsController.GetHealth">
+            <summary>
+            Check ZIMRA Server Connectivity and Gateway Latency.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DiagnosticsController.GetQueueStatus(System.Threading.CancellationToken)">
+            <summary>
+            Get metrics for the resilient offline document ingestion queue.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DiagnosticsController.GetAuditLog(System.String,System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Int32,System.Int32,System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Query paginated API audit logs and transaction traces.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.DiagnosticsController.GetDaySummary(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Get real-time daily fiscal summary metrics for a specific device.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.ErpIngestionController">
+            <summary>
+            ERP Document Ingestion and Fiscalization Endpoints.
+            Primary API endpoints used by external ERP systems (Sage, SAP, QuickBooks, Odoo, custom ERPs) to submit tax documents.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.ErpIngestionController.FiscalizeInvoice(FdmsGatewayApi.Models.Dtos.ErpInvoiceRequestDto,System.Threading.CancellationToken)">
+            <summary>
+            Fiscalize an ERP Sales Invoice.
+            </summary>
+            <remarks>
+            Validates invoice structure, checks active fiscal day, appends cryptographic hash chain signature,
+            and transmits document synchronously (or buffers in resilient offline queue if ZIMRA is offline).
+            </remarks>
+            <param name="request">Invoice details including line items, buyer info, device ID, tax totals.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Fiscalized document response containing ZIMRA verification QR code URL, signature, and submission status.</returns>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.ErpIngestionController.FiscalizeInvoiceBulk(FdmsGatewayApi.Models.Dtos.ErpBulkInvoiceRequestDto,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronous Bulk Invoice Ingest Array (Async Queue).
+            </summary>
+            <remarks>
+            Ingests a bulk array of sales invoices from ERP systems (Sage, SAP, QuickBooks, Odoo, custom ERPs).
+            Validates structure, checks active fiscal day, appends cryptographic hash chain signature,
+            and transmits documents to ZIMRA or buffers into resilient offline queue.
+            </remarks>
+            <param name="request">Bulk invoice request wrapper containing batch ID, callback URL, and array of invoices.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Bulk processing summary detailing status, verification QR codes, and ZIMRA transmission state for each item.</returns>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.ErpIngestionController.FiscalizeCreditNote(FdmsGatewayApi.Models.Dtos.ErpCreditNoteRequestDto,System.Threading.CancellationToken)">
+            <summary>
+            Fiscalize a Credit Note linked to a previously issued invoice.
+            </summary>
+            <remarks>
+            Requires CreditDebitNoteRef object referencing original invoice number and reason for adjustment.
+            </remarks>
+            <param name="request">Credit note details.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.ErpIngestionController.FiscalizeDebitNote(FdmsGatewayApi.Models.Dtos.ErpDebitNoteRequestDto,System.Threading.CancellationToken)">
+            <summary>
+            Fiscalize a Debit Note linked to a previously issued invoice.
+            </summary>
+            <remarks>
+            Requires CreditDebitNoteRef object referencing original invoice number and reason for price increment.
+            </remarks>
+            <param name="request">Debit note details.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.ErpIngestionController.GetDocumentStatus(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get fiscalization status and verification data for a submitted invoice by ERP invoice number.
+            </summary>
+            <param name="invoiceNo">Unique ERP Invoice Number.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>Document fiscal status, verification URL, QR string, and signature details.</returns>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.ErpIngestionController.RegisterWebhook(FdmsGatewayApi.Models.Entities.WebhookRegistrationEntity,System.Threading.CancellationToken)">
+            <summary>
+            Register an HTTP Webhook callback endpoint for asynchronous document processing updates.
+            </summary>
+            <param name="registration">Webhook configuration including target URL and secret key.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.OfflineFilesController">
+            <summary>
+            ZIMRA Native Batch Offline File Submission &amp; Status Polling Endpoints (Sections 4.8, 4.9, 4.10).
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.OfflineFilesController.SubmitOfflineFile(System.Int32,System.Nullable{System.Int32},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Package pending queued receipts into a base64 ZIMRA submitFile payload and transmit to ZIMRA FDMS Gateway.
+            </summary>
+            <param name="deviceId">Device ID.</param>
+            <param name="fiscalDayNo">Optional fiscal day number override.</param>
+            <param name="includeFooter">Whether to append Z-Report closing footer counters.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.OfflineFilesController.GetFileStatus(System.Int32,System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Poll ZIMRA for processing status of submitted offline files for a device via getFileStatus.
+            </summary>
+            <param name="deviceId">Device ID.</param>
+            <param name="operationId">Optional specific operation ID.</param>
+            <param name="from">Optional start date (defaults to last 7 days).</param>
+            <param name="till">Optional end date (defaults to current time).</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.OfflineFilesController.GetOfflineFileHistory(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Get local database submission logs of offline batch files for a device.
+            </summary>
+            <param name="deviceId">Device ID.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.PartnerAdminController.OnboardTenant(FdmsGatewayApi.Services.Interfaces.OnboardTenantRequestDto,System.Threading.CancellationToken)">
+            <summary>
+            Onboard a new SME Customer under the Partner's Wholesale Account.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.PartnerAdminController.RegisterDevice(FdmsGatewayApi.Controllers.RegisterDevicePayloadDto,System.Threading.CancellationToken)">
+            <summary>
+            Register a ZIMRA Fiscal Device and upload PFX certificate for an onboarded SME Tenant.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.PartnerAdminController.GetDashboard(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Get Partner Wholesale Token Balance and SME Customer Fleet Telemetry.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.ReportsController">
+            <summary>
+            Printable Fiscal Reports (Z-Reports, X-Reports, PDF Generation).
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.SubscriptionController">
+            <summary>
+            Gateway License and Subscription Management Endpoints.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.SubscriptionController.GetStatus(System.Threading.CancellationToken)">
+            <summary>
+            Retrieves current subscription details, validity dates, grace period status, and remaining days.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.SubscriptionController.ActivateSubscription(FdmsGatewayApi.Models.Dtos.ActivateSubscriptionRequest,System.Threading.CancellationToken)">
+            <summary>
+            Activates a new cryptographically signed subscription key upon renewal.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.SubscriptionController.ApplyDeviceUpgrade(FdmsGatewayApi.Models.Dtos.ApplyDeviceUpgradeRequest,System.Threading.CancellationToken)">
+            <summary>
+            Applies a cryptographically signed Device Capacity Upgrade Key (FDMS-UPG-...) to expand the drive's device limit up to the tier hard cap.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Controllers.SubscriptionController.GenerateDevKey(FdmsGatewayApi.Models.Dtos.GenerateSubscriptionKeyRequest)">
+            <summary>
+            Developer / Admin utility to generate a signed subscription API key valid for 1 month, 1 year, or custom duration.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.TenantDashboardController">
+            <summary>
+            Tenant-Isolated Operations and Fiscal Ledger Dashboard Endpoints.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Controllers.TenantUserController">
+            <summary>
+            Multi-Tenant User Management and SME Authentication Controller.
+            </summary>
+        </member>
+        <member name="T:FdmsGatewayApi.Migrations.InitialCreate">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.InitialCreate.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.InitialCreate.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.InitialCreate.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FdmsGatewayApi.Migrations.AddCertificateValidTill">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddCertificateValidTill.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddCertificateValidTill.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddCertificateValidTill.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FdmsGatewayApi.Migrations.AddAdminPinAuth">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddAdminPinAuth.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddAdminPinAuth.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddAdminPinAuth.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="T:FdmsGatewayApi.Migrations.AddZReportEntity">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddZReportEntity.Up(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddZReportEntity.Down(Microsoft.EntityFrameworkCore.Migrations.MigrationBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:FdmsGatewayApi.Migrations.AddZReportEntity.BuildTargetModel(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="P:FdmsGatewayApi.Models.Dtos.SubmitFileRequest.File">
+            <summary>
+            Base64 encoded JSON string representing the OfflineBatchFilePayloadDto (Header, Content, Footer).
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Implementation.FdmsCryptoService.GenerateQrCodeUrl(System.String,System.Int32,System.DateTime,System.Int32,System.String)">
+            <summary>
+            Generates ZIMRA deep link QR code URL per FDMS v7.2 Section 11:
+            {qrUrl}/{deviceID:10 digits}{receiptDate:ddMMyyyy}{receiptGlobalNo:10 digits}{receiptQrData:first 16 chars of MD5 hash of hex signature}
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Implementation.FdmsCryptoService.GenerateQrCodeBase64Image(System.String)">
+            <summary>
+            Renders a QR code content string as a Base64-encoded PNG image using QRCoder.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.ICurrencySplitService.SplitIfNeeded(FdmsGatewayApi.Models.Dtos.ErpInvoiceRequestDto)">
+            <summary>
+            Inspects an ERP invoice request to determine if split tender across multiple currencies is present.
+            If single currency, returns a list containing the original request.
+            If multi-currency, splits the request into currency-bound invoice requests for individual ZIMRA fiscalization.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IDistributedLockProvider.TryAcquireLockAsync(System.String,System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            Attempts to acquire an execution lock for the specified key.
+            </summary>
+            <param name="lockKey">Unique string identifying the resource/queue lock.</param>
+            <param name="expiry">Time duration before the lock automatically releases if not extended.</param>
+            <param name="cancellationToken">Cancellation token.</param>
+            <returns>A Disposable lock handle if acquired, or null if lock is currently held by another node.</returns>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IFdmsOfflineFileService.PackageAndSubmitOfflineBatchAsync(System.Int32,System.Nullable{System.Int32},System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Packages queued offline receipts into a base64 ZIMRA submitFile payload and transmits to ZIMRA FDMS Gateway.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IFdmsOfflineFileService.CheckFileStatusAsync(System.Int32,System.String,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            Polls ZIMRA for processing status of previously submitted offline batch files via getFileStatus.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IFdmsOfflineFileService.GetLocalOfflineFileHistoryAsync(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            Retrieves local database log of submitted offline batch files for a device.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IHardwareIdentityFilter.VerifyCarrierMediaIntegrity">
+            <summary>
+            Verifies physical storage media descriptors (VID, PID, OEM Serial, Sector Count)
+            against the signed license block at /app/secure_storage/license.sig.
+            Halts process execution if hardware mismatch or tampering is detected.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IHardwareIdentityFilter.GetActiveHardwareSignature">
+            <summary>
+            Scrapes current physical hardware descriptors from OS SCSI layer.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.ITaxCodeMappingService.MapErpTaxCode(System.String)">
+            <summary>
+            Maps an ERP tax code string to ZIMRA TaxCode, TaxID, and TaxPercent.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.ITaxCodeMappingService.ApplyTaxMappings(FdmsGatewayApi.Models.Dtos.ErpInvoiceRequestDto)">
+            <summary>
+            Applies configured tax codes to all lines and tax summaries in an ERP document request.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.ITaxCodeMappingService.GetTaxMappings">
+            <summary>
+            Retrieves all configured tax code mappings.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.ITaxCodeMappingService.SaveTaxMappingsAsync(System.Collections.Generic.List{FdmsGatewayApi.Services.Interfaces.TaxMappingConfigItem},System.Threading.CancellationToken)">
+            <summary>
+            Saves updated tax code mappings to configuration file.
+            </summary>
+        </member>
+        <member name="M:FdmsGatewayApi.Services.Interfaces.IWebhookDispatchService.DispatchFiscalResponseAsync(FdmsGatewayApi.Models.Dtos.FiscalizedDocumentResponseDto,System.Threading.CancellationToken)">
+            <summary>
+            Dispatches full fiscalized document response payload to all registered ERP webhook endpoints asynchronously.
+            Includes HMAC-SHA256 signature in X-Webhook-Signature header using registered secret.
+            </summary>
+        </member>
+    </members>
+</doc>

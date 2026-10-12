@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Console - ZIMRA FDMS Bridge Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-primary: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .brand-logo i {
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .badge-tenant {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #60a5fa;
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .user-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.4rem 0.8rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.8rem 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: #60a5fa;
+            border-bottom-color: var(--accent-primary);
+        }
+
+        /* Grid Cards */
+        .grid-kpi {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-kpi {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-kpi::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-purple));
+        }
+
+        .kpi-title {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .kpi-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Table */
+        .table-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge-status {
+            padding: 0.25rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-synced { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-failed { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 480px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            color: white;
+            border: none;
+            padding: 0.85rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: opacity 0.2s;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <a href="/" class="brand-logo">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span class="brand-text">FDMS Bridge</span>
+            <span class="badge-tenant" id="headerTenantName">Users Console</span>
+        </a>
+
+        <div class="user-nav" id="userNav" style="display: none;">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <div>
+                    <div style="font-size: 0.85rem; font-weight: 600;" id="userName">User</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);" id="userRole">Role</div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logoutTenant()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="container" id="mainContainer">
+
+        <!-- Navigation Tabs -->
+        <div class="tab-bar">
+            <button class="tab-btn active" onclick="switchTab('overview')"><i class="fa-solid fa-chart-pie"></i> Overview</button>
+            <button class="tab-btn" onclick="switchTab('documents')"><i class="fa-solid fa-receipt"></i> Fiscal Ledger</button>
+            <button class="tab-btn" onclick="switchTab('devices')"><i class="fa-solid fa-microchip"></i> Devices</button>
+            <button class="tab-btn" id="usersTabBtn" style="display: none;" onclick="switchTab('users')"><i class="fa-solid fa-users"></i> Users & Permissions</button>
+        </div>
+
+        <!-- Tab 1: Overview -->
+        <div id="tabOverview">
+            <div class="grid-kpi">
+                <div class="card-kpi">
+                    <span class="kpi-title">Today's USD Sales</span>
+                    <span class="kpi-value" id="kpiUsdSales">$0.00</span>
+                    <span class="kpi-subtitle">Fiscalized Transactions</span>
+                </div>
+                <div class="card-kpi">
+                    <span class="kpi-title">Today's ZiG Sales</span>
+                    <span class="kpi-value" id="kpiZigSales">ZiG 0.00</span>
+                    <span class="kpi-subtitle">Fiscalized Transactions</span>
+                </div>
+                <div class="card-kpi">
+                    <span class="kpi-title">Total Receipts</span>
+                    <span class="kpi-value" id="kpiTotalDocs">0</span>
+                    <span class="kpi-subtitle" id="kpiDocBreakdown">0 Synced / 0 Pending</span>
+                </div>
+                <div class="card-kpi">
+                    <span class="kpi-title">Active Devices</span>
+                    <span class="kpi-value" id="kpiActiveDevices">0</span>
+                    <span class="kpi-subtitle">Registered ZIMRA Hardware</span>
+                </div>
+            </div>
+
+            <!-- Recent Ledger -->
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Fiscalized Receipts</span>
+                    <button class="tab-btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="switchTab('documents')">View All</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice No</th>
+                            <th>Device ID</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overviewLedgerBody">
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading ledger...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 2: Fiscal Documents Ledger -->
+        <div id="tabDocuments" style="display: none;">
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title"><i class="fa-solid fa-file-invoice-dollar"></i> Tenant Fiscal Ledger</span>
+                    <input type="text" id="searchDocs" class="form-input" style="max-width: 250px; padding: 0.4rem 0.8rem;" placeholder="Search invoice..." onkeyup="filterDocs()">
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Invoice Number</th>
+                            <th>ZIMRA Device ID</th>
+                            <th>Currency</th>
+                            <th>Gross Total</th>
+                            <th>Sync Status</th>
+                            <th>Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsTableBody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading receipts...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 3: Devices -->
+        <div id="tabDevices" style="display: none;">
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title"><i class="fa-solid fa-microchip"></i> Registered ZIMRA Devices</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ZIMRA Device ID</th>
+                            <th>Last Sequence No</th>
+                            <th>Status</th>
+                            <th>Certificate Binding</th>
+                            <th>Registered Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="devicesTableBody">
+                        <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading devices...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tab 4: Team Management -->
+        <div id="tabUsers" style="display: none;">
+            <div class="table-card">
+                <div class="table-header">
+                    <span class="table-title"><i class="fa-solid fa-users-gear"></i> User Directory & Access Management</span>
+                    <button class="btn-primary" style="width: auto; padding: 0.5rem 1.2rem;" onclick="openCreateUserModal()"><i class="fa-solid fa-user-plus"></i> Add User</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Permissions</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading users...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Login Modal Overlay -->
+    <div class="modal-overlay active" id="loginModal">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fa-solid fa-lock" style="color: var(--accent-primary);"></i> User Login</div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="loginEmail" class="form-input" required placeholder="user@company.co.zw">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" required placeholder="••••••••">
+                </div>
+                <div id="loginError" style="color: #f87171; font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
+                <button type="submit" class="btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Sign In to Users Console</button>
+                <div style="margin-top: 1.2rem; font-size: 0.85rem; text-align: center;">
+                    <a href="register.html" style="color: #60a5fa; text-decoration: none; font-weight: 600;"><i class="fa-solid fa-user-plus"></i> Need an account? Register Here</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="modal-overlay" id="createUserModal">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fa-solid fa-user-plus" style="color: var(--accent-purple);"></i> Add Tenant Team Member</div>
+            <form onsubmit="handleCreateUser(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="newUserFullName" class="form-input" required placeholder="Jane Doe">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="newUserEmail" class="form-input" required placeholder="jane@company.co.zw">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="newUserPassword" class="form-input" required placeholder="Minimum 6 characters">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="newUserRole" class="form-input">
+                        <option value="TenantOperator">Tenant Operator</option>
+                        <option value="TenantAdmin">Tenant Admin</option>
+                        <option value="TenantViewer">Tenant Viewer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Granted Permissions</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" id="permDashboard" checked> View Dashboard</label>
+                        <label class="checkbox-label"><input type="checkbox" id="permDocuments" checked> View Documents</label>
+                        <label class="checkbox-label"><input type="checkbox" id="permDevices" checked> Manage Devices</label>
+                        <label class="checkbox-label"><input type="checkbox" id="permUsers"> Manage Users</label>
+                    </div>
+                </div>
+                <div id="createUserError" style="color: #f87171; font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-logout" style="flex: 1;" onclick="closeCreateUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" style="flex: 2;">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Permissions Modal -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal-box">
+            <div class="modal-title"><i class="fa-solid fa-user-pen" style="color: var(--accent-primary);"></i> Edit User Role & Permissions</div>
+            <form onsubmit="handleUpdateUserPermissions(event)">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label class="form-label">User Email</label>
+                    <input type="text" id="editUserEmail" class="form-input" readonly style="opacity: 0.7;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="editUserRole" class="form-input">
+                        <option value="TenantOperator">Tenant Operator</option>
+                        <option value="TenantAdmin">Tenant Admin</option>
+                        <option value="TenantViewer">Tenant Viewer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Status</label>
+                    <select id="editUserActive" class="form-input">
+                        <option value="true">Active Account</option>
+                        <option value="false">Deactivated</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Granted Permissions</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" id="editPermDashboard"> View Dashboard</label>
+                        <label class="checkbox-label"><input type="checkbox" id="editPermDocuments"> View Documents</label>
+                        <label class="checkbox-label"><input type="checkbox" id="editPermDevices"> Manage Devices</label>
+                        <label class="checkbox-label"><input type="checkbox" id="editPermUsers"> Manage Users</label>
+                    </div>
+                </div>
+                <div id="editUserError" style="color: #f87171; font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn-logout" style="flex: 1;" onclick="closeEditUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" style="flex: 2;">Save Permissions</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/tenant-portal.js"></script>
+</body>
+</html>

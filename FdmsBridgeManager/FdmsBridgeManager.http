@@ -1,0 +1,6 @@
+@FdmsBridgeManager_HostAddress = http://localhost:5250
+
+GET {{FdmsBridgeManager_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

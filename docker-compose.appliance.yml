@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  serpa-api-gateway-core:
+    image: chirandu-whitelabel.internal/fdms-bridge/appliance:v7.2-stable
+    container_name: mjs-fiscal-bridge-appliance
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - DB_OPTION_AUTO_MIGRATE=false          # HARD PROTECTION: Prevents accidental schema modifications
+      - PRINTER_DEFAULT_WIDTH_MM=80            # Standard 48-column thermal receipt formatting default
+      - PRINTER_COLUMN_COUNT=48
+      - LOG_FORWARDING_TARGET=syslog://partner-siem.internal:514
+    ports:
+      - "5045:5045"                            # Standard entry port mapping
+    volumes:
+      - ./certs:/app/certs:ro                 # Read-only cryptographic file mounting
+      - ./secure_storage:/app/secure_storage  # Stores local SQLite database directly on flash drive
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: always

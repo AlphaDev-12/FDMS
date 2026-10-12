@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  fdms-gateway:
+    build:
+      context: .
+      dockerfile: FdmsGatewayApi/Dockerfile
+    ports:
+      - "5045:5045"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__FdmsDatabase=Server=sqlserver;Database=FdmsGateway;User Id=sa;Password=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!};TrustServerCertificate=True;
+      - DatabaseOptions__Provider=SqlServer
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5045/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  bridge-manager:
+    build:
+      context: .
+      dockerfile: FdmsBridgeManager/Dockerfile
+    ports:
+      - "5050:5050"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FdmsBridgeManager;User Id=sa;Password=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!};TrustServerCertificate=True;
+      - DatabaseOptions__Provider=SqlServer
+      - BridgeAdminUrl=http://bridge-admin:5070
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      bridge-admin:
+        condition: service_started
+
+  bridge-admin:
+    build:
+      context: .
+      dockerfile: FdmsBridgeAdmin/Dockerfile
+    ports:
+      - "5070:5070"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FdmsBridgeAdmin;User Id=sa;Password=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!};TrustServerCertificate=True;
+      - DatabaseOptions__Provider=SqlServer
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!}
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserverdata:/var/opt/mssql/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-FdmsSecurePass123!}\" -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=fdms_gateway
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgresSecurePass123!}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+
+volumes:
+  sqlserverdata:
+  postgresdata:
+

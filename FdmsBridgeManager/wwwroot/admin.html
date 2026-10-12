@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultancy Bridge Manager - Admin Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons (Primary + Fallback Mirror) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="css/admin.css?v=20260821_4">
+</head>
+<body>
+    <!-- Login Screen Modal -->
+    <div id="login-modal" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="admin-logo-circle"><i class="fa-solid fa-building-shield"></i></div>
+                <h2 id="login-firm-title">Bridge Manager Console</h2>
+                <p>Consultancy Staff Authentication</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username"><i class="fa-solid fa-user"></i> Username</label>
+                    <input type="text" id="login-username" placeholder="e.g. admin" value="admin" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password"><i class="fa-solid fa-key"></i> Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" value="Admin@123456" required>
+                </div>
+                <button type="submit" id="btn-login" class="btn-login-submit">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login to Console
+                </button>
+            </form>
+            <div class="login-footer">
+                <small>Default Seed Credentials: <code>admin</code> / <code>Admin@123456</code></small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Application Container -->
+    <div id="admin-app" class="admin-layout hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <img id="admin-brand-logo" src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=300&q=80" alt="Logo" class="sidebar-logo">
+                <div>
+                    <h3 id="admin-brand-name">Apex Consultancy</h3>
+                    <span class="badge-role" id="user-role-badge">SuperAdmin</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview" class="nav-item active" onclick="switchTab('overview')">
+                    <i class="fa-solid fa-chart-line"></i> Dashboard Overview
+                </a>
+                <a href="#plans" class="nav-item" onclick="switchTab('plans')">
+                    <i class="fa-solid fa-tags"></i> Dynamic Plans & Pricing
+                </a>
+                <a href="#whitelabel" class="nav-item" onclick="switchTab('whitelabel')">
+                    <i class="fa-solid fa-palette"></i> White Label Configurator
+                </a>
+                <a href="#clients" class="nav-item" onclick="switchTab('clients')">
+                    <i class="fa-solid fa-users"></i> Clients Directory
+                </a>
+                <a href="#subscriptions" class="nav-item" onclick="switchTab('subscriptions')">
+                    <i class="fa-solid fa-key"></i> Subscriptions Ledger
+                </a>
+                <a href="#cashkey" class="nav-item" onclick="switchTab('cashkey')">
+                    <i class="fa-solid fa-money-bill-wave"></i> Cash API Key Generator
+                </a>
+                <a href="#users" class="nav-item" onclick="switchTab('users')">
+                    <i class="fa-solid fa-user-shield"></i> Users & Permissions
+                </a>
+                <a href="#email-logs" class="nav-item" onclick="switchTab('email-logs')">
+                    <i class="fa-solid fa-paper-plane"></i> Email Logs Audit
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-profile-info">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <div>
+                        <strong id="user-fullname">System Admin</strong>
+                        <small id="user-username">admin</small>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Content View -->
+        <main class="admin-main">
+            <!-- Top Navbar -->
+            <header class="admin-navbar">
+                <div class="navbar-title">
+                    <h2 id="tab-title">Dashboard Overview</h2>
+                </div>
+                <div class="navbar-actions">
+                    <div id="nav-token-badge" class="btn-portal-preview" style="background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(99, 102, 241, 0.4); color: #818cf8; font-weight: 700; cursor: pointer;" onclick="switchTab('subscriptions')">
+                        <i class="fa-solid fa-coins"></i> Balance: <span id="header-token-balance">--</span> Tokens
+                    </div>
+                    <a href="portal.html" target="_blank" class="btn-portal-preview"><i class="fa-solid fa-globe"></i> View Public Portal</a>
+                    <button class="btn-refresh" onclick="refreshCurrentTab()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- 1. OVERVIEW TAB -->
+                <section id="tab-overview" class="tab-pane">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon blue"><i class="fa-solid fa-building"></i></div>
+                            <div>
+                                <span class="kpi-label">Active Clients</span>
+                                <h3 id="kpi-clients-count">0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon green"><i class="fa-solid fa-key"></i></div>
+                            <div>
+                                <span class="kpi-label">Active License Keys</span>
+                                <h3 id="kpi-subs-count">0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon purple"><i class="fa-solid fa-cash-register"></i></div>
+                            <div>
+                                <span class="kpi-label">Dynamic Plans Configured</span>
+                                <h3 id="kpi-plans-count">0</h3>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon orange"><i class="fa-solid fa-user-shield"></i></div>
+                            <div>
+                                <span class="kpi-label">Staff Users</span>
+                                <h3 id="kpi-users-count">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-panels-grid">
+                        <div class="panel-card">
+                            <div class="panel-header">
+                                <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Subscriptions</h3>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table" id="overview-subs-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client Name</th>
+                                            <th>TIN</th>
+                                            <th>Plan</th>
+                                            <th>Payment</th>
+                                            <th>Valid Until</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td colspan="6" class="text-center">Loading subscriptions...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. DYNAMIC PLANS & PRICING TAB -->
+                <section id="tab-plans" class="tab-pane hidden">
+                    <div id="plans-permission-alert" class="alert-box warning hidden" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-lock"></i> Permission Required: You need <strong>ManagePlans</strong> permission to modify pricing tiers and dynamic plans.
+                    </div>
+                    <div class="panel-header-actions">
+                        <p class="tab-subtitle">Configure pricing tiers ($/mo, $/qtr, $/yr), device limits, and grace periods</p>
+                        <button class="btn-primary-action" onclick="openPlanModal()"><i class="fa-solid fa-plus"></i> Add New Plan</button>
+                    </div>
+
+                    <div class="plans-admin-grid" id="admin-plans-container">
+                        <!-- Rendered via JS -->
+                    </div>
+
+                    <!-- Hardware Tier Upgrade Pricing Configurator -->
+                    <div class="panel-card" style="margin-top: 2rem;">
+                        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h3><i class="fa-solid fa-microchip text-primary"></i> Hardware Tier Upgrade Pricing Configurator</h3>
+                                <p class="tab-subtitle">Set dynamic unit prices ($ USD per slot) and token rates for capacity expansion by hardware class</p>
+                            </div>
+                            <button type="button" class="btn-primary-action" onclick="saveHardwareTierPricing()"><i class="fa-solid fa-floppy-disk"></i> Save Tier Prices</button>
+                        </div>
+                        <div class="table-responsive" style="margin-top: 1rem;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Hardware Tier</th>
+                                        <th>Default Capacity</th>
+                                        <th>Hard Cap Limit</th>
+                                        <th>Price per Slot ($ USD) *</th>
+                                        <th>Upgrade Tokens / Slot *</th>
+                                        <th>Tier Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="hardware-tier-pricing-tbody">
+                                    <tr><td colspan="6" class="text-center">Loading hardware tier pricing...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. WHITE LABEL CONFIGURATOR TAB -->
+                <section id="tab-whitelabel" class="tab-pane hidden">
+                    <div id="whitelabel-permission-alert" class="alert-box warning hidden" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-lock"></i> Permission Required: You need <strong>ManageWhiteLabel</strong> permission to modify white label brand settings.
+                    </div>
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <p class="tab-subtitle">Customize firm title, logo URL, dynamic accent colors, and email templates live</p>
+                        </div>
+                        <form id="whitelabel-form" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Firm / Consultancy Name *</label>
+                                    <input type="text" id="wl-firm-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Sub-heading / Tagline</label>
+                                    <input type="text" id="wl-tagline">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Brand Logo Image URL</label>
+                                    <input type="url" id="wl-logo-url" placeholder="https://...">
+                                </div>
+                                <div class="form-group">
+                                    <label>Support Email Address</label>
+                                    <input type="email" id="wl-support-email" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Primary Brand Accent Color</label>
+                                    <div class="color-picker-wrapper">
+                                        <input type="color" id="wl-primary-color" class="color-picker">
+                                        <input type="text" id="wl-primary-hex" class="hex-input" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Secondary Brand Accent Color</label>
+                                    <div class="color-picker-wrapper">
+                                        <input type="color" id="wl-secondary-color" class="color-picker">
+                                        <input type="text" id="wl-secondary-hex" class="hex-input" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Support Phone Number</label>
+                                    <input type="text" id="wl-support-phone">
+                                </div>
+                                <div class="form-group">
+                                    <label>Physical Address</label>
+                                    <input type="text" id="wl-address">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label>Copyright Footer Notice</label>
+                                    <input type="text" id="wl-copyright">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label>Email License Receipt Footer Text</label>
+                                    <textarea id="wl-email-footer" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary-action"><i class="fa-solid fa-floppy-disk"></i> Save White Label Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- 4. CLIENTS DIRECTORY TAB -->
+                <section id="tab-clients" class="tab-pane hidden">
+                    <div id="clients-permission-alert" class="alert-box warning hidden" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-lock"></i> Permission Required: You need <strong>ManageClients</strong> permission to add or edit client profiles.
+                    </div>
+                    <div class="panel-header-actions">
+                        <p class="tab-subtitle">Manage consultancy client database, Taxpayer TINs, and contact profiles</p>
+                        <button class="btn-primary-action" onclick="openClientModal()"><i class="fa-solid fa-user-plus"></i> Add New Client</button>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="ledger-filter-toolbar">
+                            <div class="toolbar-search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="client-search-input" class="toolbar-search-input" placeholder="Search by Company Name, TIN, Email, Contact..." oninput="onClientSearchInput()">
+                            </div>
+                            <div class="toolbar-filter-wrapper">
+                                <div class="select-with-icon">
+                                    <i class="fa-solid fa-filter select-icon"></i>
+                                    <select id="client-status-filter" class="toolbar-select" onchange="onClientFilterChange()">
+                                        <option value="All">All Statuses</option>
+                                        <option value="Active">Active</option>
+                                        <option value="Inactive">Inactive</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn-clear-filter" onclick="clearClientFilters()">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
+                            <div class="toolbar-perpage-wrapper">
+                                <span class="perpage-label">Show</span>
+                                <select id="client-pagesize-select" class="toolbar-select-sm" onchange="onClientPageSizeChange()">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span class="perpage-label">entries</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Company Name</th>
+                                        <th>Taxpayer TIN</th>
+                                        <th>Contact Person</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Tenant API Key</th>
+                                        <th>Active Keys</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-table-body">
+                                    <!-- Rendered via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar">
+                            <span class="pagination-info" id="client-pagination-info">Showing 0 of 0 clients</span>
+                            <div class="pagination-controls">
+                                <button id="btn-client-prev" onclick="changeClientPage(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                                <span class="page-indicator" id="client-page-indicator">Page 1 of 1</span>
+                                <button id="btn-client-next" onclick="changeClientPage(1)" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 5. SUBSCRIPTIONS LEDGER TAB -->
+                <section id="tab-subscriptions" class="tab-pane hidden">
+                    <div id="subs-permission-alert" class="alert-box warning hidden" style="margin-bottom: 1rem;">
+                        <i class="fa-solid fa-lock"></i> Permission Required: You need <strong>ManageSubscriptions</strong> permission to manage subscriptions, redeem, or purchase tokens.
+                    </div>
+                    <div class="panel-card" style="margin-bottom: 1.5rem;">
+                        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p class="tab-subtitle">1 Token = 1 Device per Month. Generates client API keys by deducting tokens.</p>
+                            </div>
+                            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                                <button class="btn-primary-action" onclick="openRedeemVoucherModal()"><i class="fa-solid fa-key"></i> Redeem Master Key</button>
+                                <button class="btn-primary-action green-btn" onclick="openBuyTokensModal()"><i class="fa-solid fa-cart-shopping"></i> Purchase Tokens (PayNow)</button>
+                            </div>
+                        </div>
+
+                        <div class="kpi-grid" style="margin-top: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+                            <div class="kpi-card">
+                                <div class="kpi-icon blue"><i class="fa-solid fa-coins"></i></div>
+                                <div>
+                                    <span class="kpi-label">Subscription Tokens ($5/ea)</span>
+                                    <h3 id="ledger-balance-display">0</h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon purple"><i class="fa-solid fa-microchip"></i></div>
+                                <div>
+                                    <span class="kpi-label">Upgrade Tokens ($50/ea)</span>
+                                    <h3 id="ledger-upg-balance-display">0</h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon green"><i class="fa-solid fa-arrow-down-long"></i></div>
+                                <div>
+                                    <span class="kpi-label">Total Purchased</span>
+                                    <h3 id="ledger-purchased-display">0</h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon orange"><i class="fa-solid fa-shield-halved"></i></div>
+                                <div>
+                                    <span class="kpi-label">Immutability</span>
+                                    <h3 id="ledger-immutability-display" style="font-size: 1.1rem; color: #34d399;">✓ Active</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-card">
+                        <div class="ledger-filter-toolbar">
+                            <div class="toolbar-search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="sub-search-input" class="toolbar-search-input" placeholder="Search by Client, TIN, Email, Plan, Ref, Key..." oninput="onSubSearchInput()">
+                            </div>
+                            <div class="toolbar-filter-wrapper">
+                                <div class="select-with-icon">
+                                    <i class="fa-solid fa-filter select-icon"></i>
+                                    <select id="sub-status-filter" class="toolbar-select" onchange="onSubFilterChange()">
+                                        <option value="All">All Statuses</option>
+                                        <option value="Active">Active</option>
+                                        <option value="GracePeriod">Grace Period</option>
+                                        <option value="Expired">Expired</option>
+                                        <option value="Inactive">Inactive (Deactivated)</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn-clear-filter" onclick="clearSubFilters()">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
+                            <div class="toolbar-perpage-wrapper">
+                                <span class="perpage-label">Show</span>
+                                <select id="sub-pagesize-select" class="toolbar-select-sm" onchange="onSubPageSizeChange()">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span class="perpage-label">entries</span>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Client Name</th>
+                                        <th>Taxpayer TIN</th>
+                                        <th>Plan Name</th>
+                                        <th>Price</th>
+                                        <th>Devices</th>
+                                        <th>Tokens</th>
+                                        <th>Valid Range</th>
+                                        <th>Days Left</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subs-table-body">
+                                    <!-- Rendered via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination-bar">
+                            <span class="pagination-info" id="sub-pagination-info">Showing 0 of 0 subscriptions</span>
+                            <div class="pagination-controls">
+                                <button id="btn-sub-prev" onclick="changeSubPage(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                                <span class="page-indicator" id="sub-page-indicator">Page 1 of 1</span>
+                                <button id="btn-sub-next" onclick="changeSubPage(1)" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. CASH API KEY GENERATOR TAB -->
+                <section id="tab-cashkey" class="tab-pane hidden">
+                    <div class="panel-card">
+                        <div class="panel-header">
+                            <p class="tab-subtitle">Issue an immediate signed subscription key upon receiving manual cash or bank transfer payment</p>
+                        </div>
+
+                        <div id="cash-permission-alert" class="alert-box warning hidden">
+                            <i class="fa-solid fa-lock"></i> Permission Required: You need <strong>GenerateCashKeys</strong> permission to issue cash keys.
+                        </div>
+
+                        <form id="cash-key-form" class="admin-form">
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="cash-action-type">Select Key Action / Operation Type *</label>
+                                    <select id="cash-action-type" class="form-control" onchange="onCashActionChanged()" style="font-weight: 700; font-size: 1rem; border-color: var(--primary-color, #3b82f6);">
+                                        <option value="Subscription">Issue Subscription API Key (Device Licenses & Subscription Period)</option>
+                                        <option value="DeviceUpgrade">Issue Hardware Device Upgrade Key (+1 Capacity Slot, Hardware Bound)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cash-tin">Taxpayer TIN (10 Digits) *</label>
+                                    <input type="text" id="cash-tin" placeholder="e.g. 2000123456" required oninput="onCashTinInput()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cash-company">Company Name *</label>
+                                    <input type="text" id="cash-company" placeholder="e.g. Harare Mega Retail" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cash-email">Client Email Address *</label>
+                                    <input type="email" id="cash-email" placeholder="e.g. manager@megaretail.co.zw" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cash-contact">Contact Person</label>
+                                    <input type="text" id="cash-contact" placeholder="e.g. Jane Smith">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cash-drive-id">Drive Instance ID (Bound Hardware Serial) *</label>
+                                    <input type="text" id="cash-drive-id" placeholder="e.g. DRV-A1B2C3D4" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cash-hw-tier">Hardware Tier *</label>
+                                    <select id="cash-hw-tier" onchange="updateCashPriceSummary()">
+                                        <option value="TillStick">Till Stick (Default 1, Max Cap 5)</option>
+                                        <option value="BranchBox">Branch Box (Default 5, Max Cap 25)</option>
+                                        <option value="Cloud">Cloud Instance (Default 10, Max Cap 100)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Subscription Specific Fields -->
+                            <div class="form-row" id="cash-subscription-fields">
+                                <div class="form-group">
+                                    <label for="cash-plan-select">Select Subscription Plan *</label>
+                                    <select id="cash-plan-select" onchange="updateCashPriceSummary()">
+                                        <!-- Dynamically loaded -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cash-device-count">Number of Devices *</label>
+                                    <input type="number" id="cash-device-count" min="1" value="1" oninput="updateCashPriceSummary()">
+                                </div>
+                            </div>
+
+                            <!-- Device Upgrade Specific Fields -->
+                            <div class="form-row hidden" id="cash-upgrade-fields">
+                                <div class="form-group full-width">
+                                    <label for="cash-slots-to-add">Additional Device Slots (+1 = $50) *</label>
+                                    <input type="number" id="cash-slots-to-add" min="1" value="1" oninput="updateCashPriceSummary()">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="cash-ref">Cash / Bank Receipt Reference *</label>
+                                    <input type="text" id="cash-ref" placeholder="e.g. CASH-REC-9081" required>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <div class="cash-summary-box">
+                                        <div class="summary-left">
+                                            <div class="summary-icon"><i class="fa-solid fa-calculator"></i></div>
+                                            <div>
+                                                <div class="summary-label" id="cash-summary-title">Total Price Calculation</div>
+                                                <div class="summary-subtext" id="cash-summary-subtext">Base plan price × requested device licenses</div>
+                                            </div>
+                                        </div>
+                                        <div class="summary-right">
+                                            <div class="summary-total" id="cash-price-total">$0.00 USD</div>
+                                            <div class="summary-breakdown" id="cash-price-breakdown">$0.00 × 1 device</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="cash-send-email" checked> Send White-Labeled Email Receipt with Key to Client
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" id="btn-generate-cash" class="btn-primary-action green-btn">
+                                    <i class="fa-solid fa-key"></i> Process Cash & Generate Key
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Generated Cash Key Result Card -->
+                        <div id="cash-result-card" class="result-box hidden">
+                            <h4 id="cash-result-title"><i class="fa-solid fa-circle-check"></i> Key Issued Successfully!</h4>
+                            <div class="key-box-admin">
+                                <input type="text" id="generated-key-output" readonly>
+                                <button onclick="copyGeneratedCashKey()"><i class="fa-solid fa-copy"></i> Copy</button>
+                            </div>
+                            <p id="cash-email-note" class="text-muted-sm"></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 7. USERS & PERMISSIONS TAB -->
+                <section id="tab-users" class="tab-pane hidden">
+                    <div class="panel-header-actions">
+                        <p class="tab-subtitle">Manage consultancy team accounts and assign permission scopes</p>
+                        <button class="btn-primary-action" onclick="openUserModal()"><i class="fa-solid fa-user-plus"></i> Create New User</button>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Full Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Assigned Permissions</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="users-table-body">
+                                    <!-- Rendered via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 8. EMAIL LOGS AUDIT TAB -->
+                <section id="tab-email-logs" class="tab-pane hidden">
+                    <div class="panel-card">
+                        <div class="panel-header-actions" style="margin-bottom: 1.25rem;">
+                            <div>
+                                <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 700; color: #0f172a;"><i class="fa-solid fa-clock-rotate-left text-primary"></i> Email License Dispatch Audit Stream</h3>
+                                <p class="tab-subtitle">Immutable audit trail of white-labeled API key emails dispatched to clients</p>
+                            </div>
+                        </div>
+
+                        <!-- Audit KPI Summary Cards -->
+                        <div class="kpi-grid" style="margin-bottom: 1.5rem;">
+                            <div class="kpi-card">
+                                <div class="kpi-icon blue"><i class="fa-solid fa-paper-plane"></i></div>
+                                <div>
+                                    <span class="kpi-label">Total Dispatched</span>
+                                    <h3 id="email-kpi-total">0</h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon green"><i class="fa-solid fa-circle-check"></i></div>
+                                <div>
+                                    <span class="kpi-label">Delivered / Sent</span>
+                                    <h3 id="email-kpi-sent">0</h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon orange"><i class="fa-solid fa-circle-xmark"></i></div>
+                                <div>
+                                    <span class="kpi-label">Failures</span>
+                                    <h3 id="email-kpi-failed">0</h3>
+                                </div>
+                            </div>
+                            <div class="kpi-card">
+                                <div class="kpi-icon purple"><i class="fa-solid fa-clock"></i></div>
+                                <div>
+                                    <span class="kpi-label">Latest Activity</span>
+                                    <h3 id="email-kpi-latest" style="font-size: 1rem; font-weight: 700;">--</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audit Filter Toolbar -->
+                        <div class="ledger-filter-toolbar">
+                            <div class="toolbar-search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="email-search-input" class="toolbar-search-input" placeholder="Search by Recipient, Subject, API Key..." oninput="onEmailSearchInput()">
+                            </div>
+                            <div class="toolbar-filter-wrapper">
+                                <div class="select-with-icon">
+                                    <i class="fa-solid fa-filter select-icon"></i>
+                                    <select id="email-status-filter" class="toolbar-select" onchange="onEmailFilterChange()">
+                                        <option value="All">All Statuses</option>
+                                        <option value="Sent">Sent / Delivered</option>
+                                        <option value="Failed">Failed / Error</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn-clear-filter" onclick="clearEmailFilters()">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset
+                                </button>
+                            </div>
+                            <div class="toolbar-perpage-wrapper">
+                                <span class="perpage-label">Show</span>
+                                <select id="email-pagesize-select" class="toolbar-select-sm" onchange="onEmailPageSizeChange()">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                                <span class="perpage-label">entries</span>
+                            </div>
+                        </div>
+
+                        <!-- Audit Log Table -->
+                        <div class="table-responsive">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Log ID</th>
+                                        <th>Recipient Email</th>
+                                        <th>Subject / Action</th>
+                                        <th>API Key Dispatched</th>
+                                        <th>Status</th>
+                                        <th>Dispatched At</th>
+                                        <th style="width: 120px; text-align: center;">Audit Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="email-logs-table-body">
+                                    <!-- Rendered via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Audit Log Pagination Bar -->
+                        <div class="pagination-bar">
+                            <span class="pagination-info" id="email-pagination-info">Showing 0 of 0 audit logs</span>
+                            <div class="pagination-controls">
+                                <button id="btn-email-prev" onclick="changeEmailPage(-1)" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+                                <span class="page-indicator" id="email-page-indicator">Page 1 of 1</span>
+                                <button id="btn-email-next" onclick="changeEmailPage(1)" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Add / Edit Plan -->
+    <div id="plan-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="plan-modal-title">Add Subscription Plan</h3>
+                <button class="modal-close" onclick="closePlanModal()">&times;</button>
+            </div>
+            <form id="plan-form">
+                <input type="hidden" id="plan-edit-id">
+                <div class="form-group">
+                    <label>Plan Name *</label>
+                    <input type="text" id="pm-name" placeholder="e.g. Quarterly Professional" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Billing Cycle *</label>
+                        <select id="pm-cycle">
+                            <option value="Monthly">Monthly</option>
+                            <option value="Quarterly">Quarterly</option>
+                            <option value="Annual">Annual</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Price per Device ($) *</label>
+                        <input type="number" step="0.01" id="pm-price" placeholder="135.00" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Duration (Months) *</label>
+                        <input type="number" id="pm-duration" value="3" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Max Devices *</label>
+                        <input type="number" id="pm-devices" value="15" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Grace Period (Days) *</label>
+                        <input type="number" id="pm-grace" value="7" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <input type="text" id="pm-currency" value="USD">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="pm-desc" rows="2"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closePlanModal()">Cancel</button>
+                    <button type="submit" class="btn-primary-action">Save Plan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add / Edit User -->
+    <div id="user-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="user-modal-title">Create Staff User Account</h3>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <form id="user-form">
+                <input type="hidden" id="um-id">
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" id="um-username" placeholder="e.g. jsmith" required>
+                </div>
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="um-fullname" placeholder="e.g. John Smith" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="um-email" placeholder="e.g. jsmith@company.co.zw" required>
+                </div>
+                <div class="form-group">
+                    <label id="um-password-label">Password *</label>
+                    <input type="password" id="um-password" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select id="um-role">
+                        <option value="Staff">Staff</option>
+                        <option value="Cashier">Cashier</option>
+                        <option value="Manager">Manager</option>
+                        <option value="SuperAdmin">SuperAdmin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Permissions Scope</label>
+                    <div class="permissions-checkbox-grid">
+                        <label><input type="checkbox" value="ManageClients" class="perm-check"> Manage Clients</label>
+                        <label><input type="checkbox" value="ManageSubscriptions" class="perm-check"> Manage Subscriptions</label>
+                        <label><input type="checkbox" value="GenerateCashKeys" class="perm-check"> Generate Cash Keys</label>
+                        <label><input type="checkbox" value="ManagePlans" class="perm-check"> Manage Dynamic Plans</label>
+                        <label><input type="checkbox" value="ManageWhiteLabel" class="perm-check"> Manage White Label</label>
+                        <label><input type="checkbox" value="ManageUsers" class="perm-check"> Manage Users</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeUserModal()">Cancel</button>
+                    <button type="submit" id="btn-save-user" class="btn-primary-action"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="client-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="client-modal-title">Add New Client</h3>
+                <button class="modal-close" onclick="closeClientModal()">&times;</button>
+            </div>
+            <form id="client-form">
+                <input type="hidden" id="cm-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company Name *</label>
+                        <input type="text" id="cm-company" placeholder="e.g. Apex Retailers Ltd" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Taxpayer TIN (10 Digits) *</label>
+                        <input type="text" id="cm-tin" placeholder="e.g. 2000123456" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Contact Person</label>
+                        <input type="text" id="cm-contact" placeholder="e.g. John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address *</label>
+                        <input type="email" id="cm-email" placeholder="e.g. client@company.co.zw" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="cm-phone" placeholder="e.g. +263 77 123 4567">
+                    </div>
+                    <div class="form-group">
+                        <label>Status *</label>
+                        <select id="cm-status">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                            <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Physical / Business Address</label>
+                    <textarea id="cm-address" rows="2" placeholder="e.g. Suite 4, Commercial Center, Harare"></textarea>
+                </div>
+                <div class="form-group" id="cm-apikey-group">
+                    <label>Tenant API Key (Auto-Generated)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" id="cm-apikey" placeholder="Auto-generated on creation" style="font-family: monospace; font-weight: 600; font-size: 0.9rem;" readonly>
+                        <button type="button" class="btn-primary-action" onclick="copyClientModalApiKey()" style="white-space: nowrap; padding: 0.5rem 0.85rem;">
+                            <i class="fa-solid fa-copy"></i> Copy Key
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeClientModal()">Cancel</button>
+                    <button type="submit" class="btn-primary-action">Save Client Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Redeem Token Master Key -->
+    <div id="redeem-voucher-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key" style="color: var(--primary-color);"></i> Redeem Token Master Key Voucher</h3>
+                <button class="modal-close" onclick="closeModal('redeem-voucher-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleRedeemVoucher(event)">
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                    <span style="font-size: 0.75rem; background: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 6px; border: 1px solid #bfdbfe; font-weight: 600;">
+                        <i class="fa-solid fa-coins"></i> Subscription Tokens (FDMS-TOKEN-...)
+                    </span>
+                    <span style="font-size: 0.75rem; background: #f5f3ff; color: #7c3aed; padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd6fe; font-weight: 600;">
+                        <i class="fa-solid fa-microchip"></i> Device Upgrade Tokens (FDMS-DEVUPG-TOKEN-...)
+                    </span>
+                </div>
+                <div class="form-group">
+                    <label>Enter Master Key Voucher Code *</label>
+                    <input type="text" id="voucher-code-input" placeholder="e.g. FDMS-TOKEN-... or FDMS-DEVUPG-TOKEN-..." required style="font-family: monospace; font-size: 0.875rem;">
+                    <small style="color: #94a3b8; display: block; margin-top: 0.5rem;">
+                        Paste the voucher code provided by Bridge Admin. The system will automatically detect whether it is a Subscription Token or Device Upgrade Token voucher.
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal('redeem-voucher-modal')">Cancel</button>
+                    <button type="submit" id="btn-submit-redeem" class="btn-primary-action"><i class="fa-solid fa-key"></i> Redeem Tokens</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Purchase Tokens via PayNow -->
+    <div id="buy-tokens-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Purchase Token Package (PayNow)</h3>
+                <button class="modal-close" onclick="closeModal('buy-tokens-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleBuyTokens(event)">
+                <div class="form-group">
+                    <label>Token Package Type *</label>
+                    <select id="buy-token-type" required onchange="updateBuyTokenTotal()">
+                        <option value="Subscription">Subscription Tokens ($5.00 / ea)</option>
+                        <option value="DeviceUpgrade">Device Upgrade Tokens ($50.00 / ea)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Number of Tokens *</label>
+                    <input type="number" id="buy-token-count" min="1" value="100" required onchange="updateBuyTokenTotal()">
+                    <small style="color: #94a3b8; display: block; margin-top: 0.25rem;" id="buy-token-rule-hint">Rule: 1 Subscription Token = 1 Device per Month.</small>
+                </div>
+                <div class="form-group">
+                    <label>Billing Email Address *</label>
+                    <input type="email" id="buy-token-email" required placeholder="billing@apexconsultancy.co.zw">
+                </div>
+                <div class="form-group">
+                    <label>Total Price</label>
+                    <div id="buy-token-total" style="font-size: 1.3rem; font-weight: 800; color: #10b981;">$500.00 USD</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeModal('buy-tokens-modal')">Cancel</button>
+                    <button type="submit" class="btn-primary-action green-btn">Proceed to PayNow</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Generate Device Upgrade Key -->
+    <div id="upgrade-key-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-microchip" style="color: #8b5cf6;"></i> Issue Hardware Device Upgrade Key</h3>
+                <button class="modal-close" onclick="closeModal('upgrade-key-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleGenerateUpgradeKey(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Taxpayer TIN *</label>
+                        <input type="text" id="upg-tin" placeholder="e.g. 2000123456" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Drive Instance ID (DRV-XXXXXXXX) *</label>
+                        <input type="text" id="upg-drive-id" placeholder="e.g. DRV-1A2B3C4D" required style="font-family: monospace;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Hardware Tier *</label>
+                        <select id="upg-tier" onchange="updateUpgradeSummary()">
+                            <option value="TillStick">Till Stick (Cap: 5 devices)</option>
+                            <option value="BranchBox">Branch Box (Cap: 25 devices)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Slots to Add (+1 = $50) *</label>
+                        <input type="number" id="upg-slots" min="1" max="20" value="1" required onchange="updateUpgradeSummary()">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Current Device Capacity</label>
+                        <input type="number" id="upg-current-max" min="1" value="1" onchange="updateUpgradeSummary()">
+                    </div>
+                    <div class="form-group">
+                        <label>Cash / Bank Reference</label>
+                        <input type="text" id="upg-cash-ref" placeholder="e.g. CASH-UPG-001">
+                    </div>
+                </div>
+                <div class="form-group" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; color: #0f172a;">
+                        <span>Price to Charge Client:</span>
+                        <span id="upg-price-display" style="color: #10b981;">$50.00 USD</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #64748b; margin-top: 4px;">
+                        <span>Reseller Tokens Deducted:</span>
+                        <span id="upg-tokens-display" style="color: #8b5cf6; font-weight: 700;">1 Device Upgrade Token ($50)</span>
+                    </div>
+                </div>
+                <div id="upg-result-box" class="result-box hidden" style="margin-top: 1rem;">
+                    <h4><i class="fa-solid fa-circle-check"></i> Upgrade Key Issued Successfully!</h4>
+                    <div class="key-box-admin" style="margin-top: 8px;">
+                        <input type="text" id="generated-upgrade-key-output" readonly style="font-family: monospace; font-size: 0.85rem;">
+                        <button type="button" onclick="copyGeneratedUpgradeKey()"><i class="fa-solid fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+                <div class="modal-footer" style="margin-top: 1rem;">
+                    <button type="button" class="btn-cancel" onclick="closeModal('upgrade-key-modal')">Cancel</button>
+                    <button type="submit" id="btn-submit-upgrade" class="btn-primary-action purple-btn" style="background: #8b5cf6;">Issue Upgrade Key</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Modal: Email Dispatch Audit Inspector -->
+    <div id="email-log-modal" class="modal-overlay hidden">
+        <div class="modal-card" style="max-width: 780px;">
+            <div class="modal-header">
+                <h3 style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-shield-halved" style="color: var(--primary-color);"></i>
+                    Email License Dispatch Audit Event
+                </h3>
+                <button class="modal-close" onclick="closeEmailLogModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                <!-- Audit Metadata Grid -->
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div>
+                        <span class="detail-label" style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Audit Log ID</span>
+                        <div id="elm-id" style="font-family: monospace; font-size: 0.85rem; font-weight: 700; color: #0f172a; word-break: break-all; margin-top: 2px;">--</div>
+                    </div>
+                    <div>
+                        <span class="detail-label" style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Status</span>
+                        <div id="elm-status" style="margin-top: 2px;">--</div>
+                    </div>
+                    <div>
+                        <span class="detail-label" style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Recipient Email</span>
+                        <div id="elm-recipient" style="font-weight: 700; color: #0f172a; margin-top: 2px;">--</div>
+                    </div>
+                    <div>
+                        <span class="detail-label" style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Dispatched Timestamp</span>
+                        <div id="elm-sent-at" style="font-size: 0.85rem; font-weight: 600; color: #334155; margin-top: 2px;">--</div>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <span class="detail-label" style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Subject Line</span>
+                        <div id="elm-subject" style="font-weight: 600; color: #0f172a; margin-top: 2px;">--</div>
+                    </div>
+                    <div style="grid-column: span 2;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                            <span class="detail-label" style="font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Dispatched Subscription API Key</span>
+                            <button type="button" class="btn-sm btn-edit" style="padding: 2px 8px; font-size: 0.75rem;" onclick="copyEmailLogApiKey()">
+                                <i class="fa-solid fa-copy"></i> Copy Key
+                            </button>
+                        </div>
+                        <div style="background: #0f172a; color: #38bdf8; font-family: monospace; font-size: 0.8rem; padding: 10px 12px; border-radius: 8px; word-break: break-all; border: 1px solid #334155;" id="elm-apikey">--</div>
+                    </div>
+                </div>
+
+                <!-- Inspector View Modes -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a;"><i class="fa-solid fa-file-code"></i> Email Content Inspector</h4>
+                        <div style="display: flex; gap: 6px;">
+                            <button type="button" id="btn-view-rendered" class="btn-sm btn-edit" onclick="switchEmailInspectorTab('rendered')">
+                                <i class="fa-solid fa-eye"></i> Rendered Email
+                            </button>
+                            <button type="button" id="btn-view-raw" class="btn-sm" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;" onclick="switchEmailInspectorTab('raw')">
+                                <i class="fa-solid fa-code"></i> Raw HTML Payload
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="elm-rendered-view" style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; max-height: 380px; overflow-y: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);">
+                        <!-- Rendered HTML iframe / div -->
+                    </div>
+
+                    <div id="elm-raw-view" class="hidden">
+                        <textarea id="elm-raw-textarea" readonly rows="12" style="width: 100%; font-family: monospace; font-size: 0.8rem; background: #0f172a; color: #a7f3d0; border: 1px solid #334155; border-radius: 10px; padding: 12px; resize: vertical;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeEmailLogModal()">Close Audit Inspector</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js?v=20260821_4"></script>
+</body>
+</html>

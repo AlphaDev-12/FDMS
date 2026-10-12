@@ -1,0 +1,10 @@
+{
+  "Schedule": {
+    "AutoOpenTimeCAT": "06:00",
+    "AutoCloseTimeCAT": "23:00",
+    "Enabled": false,
+    "TimeZone": "(UTC \u002B 02:00) Harare, Pretoria",
+    "TaxPayerDayMaxHrs": 24,
+    "DayEndNotificationHrs": 2
+  }
+}

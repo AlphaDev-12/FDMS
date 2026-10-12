@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZIMRA FDMS Fiscal Gateway — ERP Integration Guide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --bg-nav: #090d16;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-blue: #38bdf8;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --border-color: #334155;
+            --code-bg: #0d1117;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--bg-nav);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .brand-logo i {
+            color: var(--accent-emerald);
+            font-size: 1.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+        }
+        .btn-primary:hover {
+            background-color: #7dd3fc;
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .layout-container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            gap: 2.5rem;
+        }
+
+        .guide-content {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            overflow-x: auto;
+        }
+
+        /* Markdown Styling Overrides */
+        .guide-content h1 {
+            color: var(--accent-blue);
+            font-size: 2.25rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .guide-content h2 {
+            color: var(--text-main);
+            font-size: 1.6rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .guide-content h3 {
+            color: var(--accent-emerald);
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .guide-content p, .guide-content ul, .guide-content ol {
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .guide-content ul, .guide-content ol {
+            padding-left: 1.75rem;
+        }
+
+        .guide-content li {
+            margin-bottom: 0.4rem;
+        }
+
+        .guide-content code {
+            font-family: "Fira Code", Consolas, Monaco, monospace;
+            background-color: rgba(255,255,255,0.08);
+            color: #f472b6;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .guide-content pre {
+            background-color: var(--code-bg) !important;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.25rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+        }
+
+        .guide-content pre code {
+            background-color: transparent !important;
+            color: #f8fafc;
+            padding: 0;
+        }
+
+        .guide-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.5rem;
+            background-color: #0f172a;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .guide-content th, .guide-content td {
+            padding: 0.85rem 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .guide-content th {
+            background-color: #1e293b;
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .guide-content tr:hover {
+            background-color: rgba(255,255,255,0.03);
+        }
+
+        .guide-content blockquote {
+            background-color: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1rem 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            background-color: var(--bg-nav);
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="/swagger" class="brand-logo">
+            <i class="fa-solid fa-server"></i>
+            <span>FDMS Fiscal Gateway</span>
+        </a>
+        <div class="header-actions">
+            <a href="/swagger" class="btn btn-primary">
+                <i class="fa-solid fa-code"></i> Interactive Swagger UI
+            </a>
+            <a href="/swagger/v1/swagger.json" target="_blank" class="btn btn-secondary">
+                <i class="fa-solid fa-file-code"></i> OpenAPI JSON
+            </a>
+        </div>
+    </header>
+
+    <div class="layout-container">
+        <main class="guide-content" id="markdown-container">
+            <div style="text-align: center; padding: 3rem;">
+                <i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--accent-blue);"></i>
+                <p style="margin-top: 1rem;">Loading ERP Integrator Guide...</p>
+            </div>
+        </main>
+    </div>
+
+    <footer>
+        ZIMRA FDMS Fiscal Gateway API &copy; 2026 — Designed for Sage, SAP, QuickBooks, Odoo, and Enterprise ERP Systems
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/ERP_INTEGRATION_GUIDE.md');
+                if (!response.ok) {
+                    throw new Error(`Failed to load guide (${response.status})`);
+                }
+                const markdownText = await response.text();
+                
+                marked.setOptions({
+                    highlight: function(code, lang) {
+                        if (lang && hljs.getLanguage(lang)) {
+                            return hljs.highlight(code, { language: lang }).value;
+                        }
+                        return hljs.highlightAuto(code).value;
+                    }
+                });
+
+                document.getElementById('markdown-container').innerHTML = marked.parse(markdownText);
+                hljs.highlightAll();
+            } catch (err) {
+                document.getElementById('markdown-container').innerHTML = `
+                    <div style="color: #ef4444; padding: 2rem; text-align: center;">
+                        <i class="fa-solid fa-triangle-exclamation fa-2x"></i>
+                        <h2>Could not load Integration Guide</h2>
+                        <p style="margin-top: 0.5rem; color: #94a3b8;">${err.message}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

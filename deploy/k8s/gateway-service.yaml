@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fdms-gateway-service
+  namespace: fdms-production
+  labels:
+    app.kubernetes.io/name: fdms-gateway-api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5045
+      targetPort: 5045
+      protocol: TCP
+      name: http
+  selector:
+    app: fdms-gateway-api

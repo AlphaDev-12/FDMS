@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">FDMS Bridge License Portal</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons (Primary + Fallback Mirror) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
+    <!-- Custom Portal CSS -->
+    <link rel="stylesheet" href="css/portal.css">
+</head>
+<body>
+    <!-- Top White Label Header -->
+    <header class="whitelabel-header">
+        <div class="header-container">
+            <div class="brand-badge">
+                <img id="firm-logo" src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?auto=format&fit=crop&w=300&q=80" alt="Logo" class="firm-logo">
+                <div>
+                    <h1 id="firm-name">Apex Fiscal Consultancy</h1>
+                    <p id="firm-tagline">Enterprise FDMS Bridge & Compliance Suite</p>
+                </div>
+            </div>
+            <div class="header-contact">
+                <span><i class="fa-solid fa-envelope"></i> <span id="firm-email">support@apexconsultancy.co.zw</span></span>
+                <span><i class="fa-solid fa-phone"></i> <span id="firm-phone">+263 77 123 4567</span></span>
+                <a href="admin.html" class="btn-staff-link"><i class="fa-solid fa-user-gear"></i> Staff Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="portal-main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <span class="hero-chip"><i class="fa-solid fa-shield-halved"></i> Official ZIMRA Gateway Licensing</span>
+                <h2>Activate & Renew Your FDMS Gateway License</h2>
+                <p>Select your subscription plan or purchase hardware device capacity upgrades for instant API Key activation via PayNow.</p>
+                
+                <!-- Product Switcher Bar -->
+                <div class="product-switcher-container">
+                    <button type="button" id="btn-tab-plans" class="switcher-btn active" onclick="switchProductTab('plans')">
+                        <i class="fa-solid fa-layer-group"></i> Subscription Plans
+                    </button>
+                    <button type="button" id="btn-tab-upgrades" class="switcher-btn" onclick="switchProductTab('upgrades')">
+                        <i class="fa-solid fa-microchip"></i> Device Capacity Upgrades
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- View 1: Subscription Plans Grid -->
+        <section id="view-plans" class="plans-container">
+            <div class="section-title">
+                <h3>Select Your Subscription Plan</h3>
+                <p>Choose the billing plan tailored to your retail counters and device scale</p>
+            </div>
+            <div id="plans-grid" class="plans-grid">
+                <!-- Dynamically loaded via JS -->
+                <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading subscription plans...</div>
+            </div>
+        </section>
+
+        <!-- View 2: Hardware Device Upgrades Grid -->
+        <section id="view-upgrades" class="plans-container hidden">
+            <div class="section-title">
+                <h3>Hardware Device Capacity Upgrades</h3>
+                <p>Expand the maximum registered device capacity of your physical TillStick or BranchBox gateway drive</p>
+            </div>
+            <div id="upgrades-grid" class="plans-grid">
+                <!-- Dynamically loaded via JS -->
+                <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Loading hardware tiers...</div>
+            </div>
+        </section>
+
+        <!-- Checkout Form Section -->
+        <section id="checkout-section" class="checkout-section hidden">
+            <div class="checkout-card">
+                <div class="checkout-header">
+                    <h3 id="checkout-title"><i class="fa-solid fa-credit-card"></i> Client Checkout</h3>
+                    <p id="selected-plan-banner">Selected Item: Monthly Starter ($50.00)</p>
+                </div>
+
+                <!-- Initial TIN & Email Entry Form -->
+                <form id="checkout-form" class="checkout-form">
+                    <input type="hidden" id="checkout-type-input" value="subscription">
+                    <input type="hidden" id="plan-id-input">
+                    <input type="hidden" id="tier-name-input">
+                    <p class="notice-info">
+                        <i class="fa-solid fa-info-circle"></i> Client registration is completed by consultancy staff. Please enter your registered <strong>Taxpayer TIN</strong> and <strong>Delivery Email</strong> to proceed to PayNow.
+                    </p>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tin-input">Taxpayer TIN (10 Digits) *</label>
+                            <input type="text" id="tin-input" placeholder="e.g. 2000123456" maxlength="12" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email-input">Delivery Email Address *</label>
+                            <input type="email" id="email-input" placeholder="e.g. accounts@clientcompany.co.zw" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <!-- Subscription Field: Device Count -->
+                        <div id="device-count-group" class="form-group">
+                            <label for="device-count-input">Number of Devices *</label>
+                            <input type="number" id="device-count-input" min="1" value="1" oninput="updateCheckoutPriceSummary()">
+                        </div>
+
+                        <!-- Upgrade Field: Slots To Add -->
+                        <div id="slots-add-group" class="form-group hidden">
+                            <label for="slots-add-input">Slots To Add *</label>
+                            <input type="number" id="slots-add-input" min="1" value="1" oninput="updateCheckoutPriceSummary()">
+                        </div>
+
+                        <!-- Hardware Binding Field: Drive Instance ID -->
+                        <div id="drive-id-group" class="form-group">
+                            <label for="drive-id-input">Drive Instance ID *</label>
+                            <input type="text" id="drive-id-input" placeholder="e.g. VOL12345" required>
+                        </div>
+                    </div>
+
+                    <!-- Payment Summary Box -->
+                    <div class="payment-summary">
+                        <div class="summary-item">
+                            <span id="summary-label-rate">Unit Rate:</span>
+                            <span id="summary-price">$50.00 USD</span>
+                        </div>
+                        <div class="summary-item">
+                            <span id="summary-label-qty">Quantity:</span>
+                            <span id="summary-devices">1 Device(s)</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Total Due Now:</span>
+                            <span id="summary-total">$50.00 USD</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-actions">
+                        <button type="button" class="btn-cancel" onclick="cancelCheckout()">Cancel</button>
+                        <button type="submit" id="btn-paynow" class="btn-paynow">
+                            <i class="fa-solid fa-lock"></i> Verify Registered TIN & PayNow <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Unregistered TIN Lead / Consultant Intake Form -->
+                <div id="unregistered-lead-box" class="unregistered-box hidden">
+                    <div class="alert-box warning">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <strong>TIN Not Yet Registered</strong>
+                        <p>Taxpayer TIN <strong id="unreg-tin-display"></strong> is not currently registered in our client database. Client account registration must be created by consultancy staff.</p>
+                    </div>
+                    <form id="consultation-form">
+                        <p style="font-size: 0.85rem; color: #475569; margin-bottom: 1rem;">
+                            Please fill out your business details below. A consultant will get in touch with you shortly to set up your account so you can complete your subscription.
+                        </p>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lead-company">Company / Trading Name *</label>
+                                <input type="text" id="lead-company" placeholder="e.g. Metro Retail Ltd" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lead-contact">Contact Person Name *</label>
+                                <input type="text" id="lead-contact" placeholder="e.g. Jane Doe" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="lead-phone">Phone Number</label>
+                                <input type="tel" id="lead-phone" placeholder="e.g. +263 77 123 4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="lead-notes">Notes / Device Count</label>
+                                <input type="text" id="lead-notes" placeholder="e.g. 5 retail counters">
+                            </div>
+                        </div>
+                        <div class="checkout-actions">
+                            <button type="button" class="btn-cancel" onclick="resetFormToTin()">Back</button>
+                            <button type="submit" id="btn-submit-lead" class="btn-primary-action">
+                                <i class="fa-solid fa-paper-plane"></i> Request Consultant Setup
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Consultation Submitted Success Box -->
+                <div id="consultation-success-box" class="consultation-success hidden">
+                    <div class="success-icon"><i class="fa-solid fa-headset"></i></div>
+                    <h3>Consultation Request Submitted!</h3>
+                    <p id="lead-success-msg">A consultant from our team will contact you shortly to complete your client account registration.</p>
+                    <button class="btn-primary" onclick="cancelCheckout()" style="margin-top: 1.5rem;">Return to Plans</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Receipt & API Key Confirmation View -->
+        <section id="confirmation-section" class="confirmation-section hidden">
+            <div class="confirmation-card">
+                <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <h2>Payment Confirmed & License Key Issued!</h2>
+                <p>Your subscription is active. A copy of your license key and receipt has been sent to <strong id="confirm-email"></strong>.</p>
+                
+                <div class="key-display-box">
+                    <label>Your FDMS Gateway API Key:</label>
+                    <div class="key-input-wrapper">
+                        <input type="text" id="api-key-display" readonly>
+                        <button type="button" class="btn-copy" onclick="copyApiKey()"><i class="fa-solid fa-copy"></i> Copy</button>
+                    </div>
+                    <small class="key-hint"><i class="fa-solid fa-info-circle"></i> Paste this API Key into your FDMS Gateway Dashboard under Subscriptions to activate.</small>
+                </div>
+
+                <div class="receipt-details">
+                    <div class="detail-row"><span>Taxpayer TIN:</span> <strong id="confirm-tin"></strong></div>
+                    <div class="detail-row"><span>Subscription Plan:</span> <strong id="confirm-plan"></strong></div>
+                    <div class="detail-row"><span>Valid Until:</span> <strong id="confirm-validto"></strong></div>
+                    <div class="detail-row"><span>Status:</span> <span class="status-badge-active"><i class="fa-solid fa-shield"></i> Active</span></div>
+                </div>
+
+                <div class="confirmation-actions">
+                    <button class="btn-primary" onclick="resetPortal()"><i class="fa-solid fa-rotate-right"></i> Return to Subscription Portal</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PayNow Test Sandbox Simulator Modal -->
+    <div id="paynow-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-bolt-lightning"></i> PayNow Gateway Sandbox</h3>
+                <button class="modal-close" onclick="closePayNowModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="sandbox-badge"><i class="fa-solid fa-vial"></i> PayNow Test Gateway Simulation</div>
+                <p>Simulating connection to PayNow Payment Gateway for <strong><span id="sandbox-plan-name"></span></strong>.</p>
+                <div class="amount-card">
+                    <span>Amount to Charge:</span>
+                    <h2 id="sandbox-amount">$0.00</h2>
+                    <small>PayNow Ref: <code id="sandbox-ref">PAYNOW-1234</code></small>
+                </div>
+                <p style="font-size: 0.85rem; color: #64748b;">In production, this redirects directly to PayNow (Ecocash, OneMoney, Visa, Mastercard). Click below to simulate instant payment callback completion.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closePayNowModal()">Cancel Transaction</button>
+                <button type="button" id="btn-approve-sim" class="btn-approve" onclick="approveSimulatedPayment()">
+                    <i class="fa-solid fa-circle-check"></i> Authorize & Complete Payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- White Label Footer -->
+    <footer class="whitelabel-footer">
+        <div class="footer-container">
+            <p id="firm-copyright">© 2026 Apex Fiscal Consultancy Ltd. All Rights Reserved.</p>
+            <p id="firm-address" class="footer-address">100 Sam Nujoma Street, Harare, Zimbabwe</p>
+        </div>
+    </footer>
+
+    <script src="js/portal.js"></script>
+</body>
+</html>

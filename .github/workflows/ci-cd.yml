@@ -1,0 +1,122 @@
+name: FDMS Solution CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master, release/* ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    name: Build, Test & Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore Dependencies
+        run: |
+          dotnet restore FdmsGatewayApi/FdmsGatewayApi.csproj
+          dotnet restore FdmsBridgeManager/FdmsBridgeManager.csproj
+          dotnet restore FdmsBridgeAdmin/FdmsBridgeAdmin.csproj
+          dotnet restore FdmsGatewayApi.Tests/FdmsGatewayApi.Tests.csproj
+
+      - name: Security Vulnerability Scan
+        run: |
+          dotnet list package --vulnerable --include-transitive || true
+
+      - name: Build Projects
+        run: |
+          dotnet build FdmsGatewayApi/FdmsGatewayApi.csproj --configuration Release --no-restore
+          dotnet build FdmsBridgeManager/FdmsBridgeManager.csproj --configuration Release --no-restore
+          dotnet build FdmsBridgeAdmin/FdmsBridgeAdmin.csproj --configuration Release --no-restore
+          dotnet build FdmsGatewayApi.Tests/FdmsGatewayApi.Tests.csproj --configuration Release --no-restore
+
+      - name: Execute Automated Unit Tests
+        run: |
+          dotnet test FdmsGatewayApi.Tests/FdmsGatewayApi.Tests.csproj --configuration Release --no-build --verbosity normal
+
+  publish-containers:
+    name: Build & Push Docker Images
+    needs: build-and-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build & Push Gateway API Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: FdmsGatewayApi/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/fdms-gateway-api:latest
+            ghcr.io/${{ github.repository }}/fdms-gateway-api:${{ github.sha }}
+
+      - name: Build & Push Bridge Manager Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: FdmsBridgeManager/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/fdms-bridge-manager:latest
+            ghcr.io/${{ github.repository }}/fdms-bridge-manager:${{ github.sha }}
+
+      - name: Build & Push Bridge Admin Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: FdmsBridgeAdmin/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/fdms-bridge-admin:latest
+            ghcr.io/${{ github.repository }}/fdms-bridge-admin:${{ github.sha }}
+
+  package-appliance-bundle:
+    name: Package Portable Appliance Release
+    needs: build-and-test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Publish Self-Contained Appliance Bundle
+        run: |
+          dotnet publish FdmsGatewayApi/FdmsGatewayApi.csproj -c Release -r win-x64 --self-contained true -o ./dist/fdms-appliance-win64
+
+      - name: Upload Release Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fdms-appliance-win64-bundle
+          path: ./dist/fdms-appliance-win64
+
