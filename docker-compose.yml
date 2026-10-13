@@ -9,7 +9,7 @@ services:
       - "5045:5045"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__FdmsDatabase=Server=sqlserver;Database=FdmsGateway;User Id=sa;Password=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!};TrustServerCertificate=True;
+      - ConnectionStrings__FdmsDatabase=Server=sqlserver;Database=FdmsGateway;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - DatabaseOptions__Provider=SqlServer
     depends_on:
       sqlserver:
@@ -29,7 +29,7 @@ services:
       - "5050:5050"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FdmsBridgeManager;User Id=sa;Password=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!};TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FdmsBridgeManager;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - DatabaseOptions__Provider=SqlServer
       - BridgeAdminUrl=http://bridge-admin:5070
     depends_on:
@@ -46,7 +46,7 @@ services:
       - "5070:5070"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FdmsBridgeAdmin;User Id=sa;Password=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!};TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=FdmsBridgeAdmin;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;
       - DatabaseOptions__Provider=SqlServer
     depends_on:
       sqlserver:
@@ -56,13 +56,13 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD:-FdmsSecurePass123!}
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
     ports:
       - "1433:1433"
     volumes:
       - sqlserverdata:/var/opt/mssql/data
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"${MSSQL_SA_PASSWORD:-FdmsSecurePass123!}\" -Q \"SELECT 1\" || exit 1"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q \"SELECT 1\" || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -73,7 +73,7 @@ services:
     environment:
       - POSTGRES_DB=fdms_gateway
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgresSecurePass123!}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

@@ -1,0 +1,52 @@
+**/.git
+**/.github
+**/.vscode
+**/.vs
+**/bin
+**/obj
+**/TestResults
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.DotSettings.user
+
+# Environment & Secrets
+**/.env
+**/.env.*
+!**/.env.example
+**/appsettings*.local.json
+**/appsettings.Production.json
+**/*.pfx
+**/*.p12
+**/*.pem
+**/*.key
+**/*.cer
+**/*.crt
+**/certs/
+**/secure_storage/
+
+# Databases & local storage
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/*.sqlite
+**/*.sqlite3
+
+# Python & virtual environments
+**/__pycache__
+**/.pytest_cache
+**/.venv
+**/venv
+**/ENV
+
+# Documentation & large PDFs
+**/docs/
+**/*.pdf
+pdf_extracted.txt
+DEPLOYMENT_STRATEGIES.md
+ERP_INTEGRATION_GUIDE.md
+
+# OS specific files
+**/.DS_Store
+**/Thumbs.db
+**/Desktop.ini
