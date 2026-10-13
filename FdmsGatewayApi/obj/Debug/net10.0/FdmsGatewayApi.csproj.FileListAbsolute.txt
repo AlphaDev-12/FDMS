@@ -1,8 +1,0 @@
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.csproj.AssemblyReference.cache
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\rpswa.dswa.cache.json
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.AssemblyInfoInputs.cache
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.AssemblyInfo.cs
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.csproj.CoreCompileInputs.cache
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Administrator\FDMS\FdmsGatewayApi\obj\Debug\net10.0\FdmsGatewayApi.MvcApplicationPartsAssemblyInfo.cache
