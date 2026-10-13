@@ -59,3 +59,8 @@ pdf_extracted.txt
 ## User Requested Ignores
 docs/
 DEPLOYMENT_STRATEGIES.md
+*.pdf
+Fiscal Device Gateway API v7.2 - clients.pdf
+test_reg.py
+pdf_extracted.txt
+
